@@ -3,10 +3,10 @@
 1. Read .tiff files names
 2. Read one .tiff file
 3. Use a fixed mask on the image into new one
-4. Sum the the new image to return x
+4. Sum the the new image to return
 5. Release the original image
 6. loop 2 to 5
-7. plot x
+7. plot 
 
 2. classify .tiff file into power on/off process
 3. average power off process into one background image

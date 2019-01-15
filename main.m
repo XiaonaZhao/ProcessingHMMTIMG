@@ -1,4 +1,4 @@
-% main function for Intensity2Current
+% main function for ProcessingHMMTIMG
 clc
 clear
 
@@ -11,71 +11,38 @@ clear
 % plate.
 
 % Author: nonazhao@mail.ustc.edu.cn;
-% Created: 29 June 2018
+% Created: 14 January 2018
 
-% -- Important modification: 22 Nov 2018 --
-% added submain.m, fft_P1.m, lowp.m and several plot lines
+%%
+% 1. Read .tiff files names
+fileFolder = fullfile('D:\Guaduate\SPR-others\Experiments\20190108\B3_N3_10mMRu250mMPBNa_0 -0-4V_2c_0-1VpS_MoS2_CH18-S-Au_sp80_HMMT100fps');
+dirOutput = dir(fullfile(fileFolder,'*.tif'));
+fileNames = {dirOutput.name}';
+row = size(fileNames, 1);
 
-
-%% -- Read the alive .tiff files
-
-prompt = 'Increment of frames for the samples in alive period:\n ';
-skipNum = input(prompt);
-[imgSeq, imgNum] = ReadTifFiles(...
-    'Open sampling image sequence', skipNum); % uint16 cell
-
-
-% -- Remove the no-electro background
-
-[BgSeq, BgNum] = ReadTifFiles('Open background sequence', 0); % uint16 cell
-imgSubtractBg = BgdRemoval(imgSeq, imgNum, BgSeq, BgNum);
-clear imgSeq BgSeq BgNum skipNum
-disp('***''Read the alive .tiff files'' has finished***');
-
-
-%% -- Select ROIs
-
-[cstrFilenames, cstrPathname] = uigetfile(...
-    {'*.roi',  'ROI (*.roi)';...
-    '*.zip',  'Zip-files (*.zip)';...
-    '*.*',  'All Files (*.*)',...
-    },'Pick a .roi imageJ file');
-[sROI] = ReadImageJROI(fullfile(cstrPathname, cstrFilenames));
-switch sROI.strType
-    case 'Rectangle'
-        RectBounds = sROI.vnRectBounds;
-        % [x-left_up y-left_up x-right_down y-right_down]
-        col = [RectBounds(2), RectBounds(2), RectBounds(4), RectBounds(4)];
-        row = [RectBounds(1), RectBounds(3), RectBounds(3), RectBounds(1)];
-    case 'Polygon'
-        Polygon = sROI.mnCoordinates;
-        col = Polygon(:,2);
-        row = Polygon(:,1);
+% 2. Read one .tiff file
+% 3. Use a fixed mask on the image into new one
+% 4. Sum the the new image to return x
+% 5. Release the original image
+% 6. loop 2 to 5
+intensity = zeros(row, 1);
+Mask =~ imread('D:\Guaduate\SPR-others\Experiments\20190108\mask_0108_B3.tif');
+for n = 1: row
+    tif0 = double(imread(fullfile(fileFolder, fileNames{n})));
+    tif1 = tif0.*Mask;
+    intensity(n) = sum(tif1(:));
 end
-BW = roipoly(imgSubtractBg{1}, col, row);
-nonzeroBW  = length(find(BW(:)~=0));
-BW = BW*1;
-% "*1" turns logical into double, then "uint16" turn double into uint16.
-% set more variable to monitor the matrix changes
-imgSegment = cell(imgNum,1);
-for j = 1:imgNum
-    imgSegment{j} = imgSubtractBg{j}.*BW; % double cell
-end
-clear cstrFilenames cstrPathname sROI
-clear col row BW j imgSubtractBg
-disp('***''Select ROIs'' has finished***');
+clear tif0 tif1
 
-
-%% -- Average each dROI
-
-Intensity = averROI(imgSegment, imgNum, nonzeroBW);
-clear imgSegment nonzeroBW
-disp('***''Select ROIs'' has finished***');
+% 7. plot x
+X = [1:1:row]';
+figure('color','w');
+plot(X, intensity);
 
 
 %% -- Laplace and iLaplace dROI for Current info
 
-Current = intensity2current(Intensity, imgNum);
+Current = intensity2current(intensity, row);
 % clear Intensity imgNum
 disp('***''Average each dROI'' has finished***');
 

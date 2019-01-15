@@ -19,9 +19,9 @@ set(gca, 'linewidth', 1.5)
 %% -- signal frequency spectrum
 % Fs = 100; % REAL hamamatsu camera in CV
 % Fs = 800; % hamamatsu camera in CV
-Fs = 106; % normal sampling of Pike camera
+Fs = 100; % normal sampling of Pike camera
 % Fs = 200; % hamamatsu camera in i-t
-fX1 = diffY2;
+fX1 = intensity;
 % fX2 = Y(:, 2);
 % fX3 = Y(:, 3);
 % Y2 = fft(X2);
@@ -36,7 +36,8 @@ fX1 = diffY2;
 figure('color','w');
 % subplot(3,1,1);
 plot(f1, P1);
-xlim([0, 53]); ylim([0, 0.4]);
+xlim([1, 50]);
+% ylim([0, 6]);
 % title('Single-Sided Amplitude Spectrum of Graphene blinking (HMMT)')
 % legend('Background: Au');
 % hold on
@@ -107,8 +108,11 @@ ylabel('I-Current','fontsize',10);
 set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
 set(gca, 'linewidth', 1.5)
 %%
-plot(X(2:end), diffY(:, 4)); hold on;
-f_dY(:, 4) = lowp(diffY(:, 4), 8, 46, 0.1, 20, 800); plot(X(2:end), f_dY(:, 4));
+plot(X, intensity); 
+hold on
+intensity2 = lowp(intensity, 1, 36, 0.1, 20, 100);
+plot(X, intensity2); 
+ylim([1.905*10^8, 1.935*10^8]);
 hold off
 
 %% for TaS2's CV
