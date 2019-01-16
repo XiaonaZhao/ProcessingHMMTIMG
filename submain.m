@@ -112,7 +112,10 @@ plot(X, intensity);
 hold on
 intensity2 = lowp(intensity, 1, 36, 0.1, 20, 100);
 plot(X, intensity2); 
-ylim([1.905*10^8, 1.935*10^8]);
+xlabel('Frames','fontsize',10);
+ylabel('Intensity','fontsize',10);
+xlim([0, 2050]);
+ylim([1.404*10^8, 1.425*10^8]);
 hold off
 
 %% for TaS2's CV

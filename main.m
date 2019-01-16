@@ -15,9 +15,10 @@ clear
 
 %%
 % 1. Read .tiff files names
-fileFolder = fullfile('D:\Guaduate\SPR-others\Experiments\20190108\B3_N3_10mMRu250mMPBNa_0 -0-4V_2c_0-1VpS_MoS2_CH18-S-Au_sp80_HMMT100fps');
+fileFolder = fullfile('E:\20181227_MoS2_CH18-SH\A6_zone1_10mMRu250mMPBNa_0 -0-4V_0-1VpS_2c_MoS2_uncorrosion_CH18-S-Au_HMMT100fps');
 dirOutput = dir(fullfile(fileFolder,'*.tif'));
-fileNames = {dirOutput.name}';
+dirFile = sortObj(dirOutput);
+fileNames = {dirFile.name}';
 row = size(fileNames, 1);
 
 % 2. Read one .tiff file
@@ -26,10 +27,11 @@ row = size(fileNames, 1);
 % 5. Release the original image
 % 6. loop 2 to 5
 intensity = zeros(row, 1);
-Mask =~ imread('D:\Guaduate\SPR-others\Experiments\20190108\mask_0108_B3.tif');
+Mask =~ imread('E:\20181227_MoS2_CH18-SH\recount_IMG\mask_1227_z1_A6.tif');
+tif0 = double(imread(fullfile(fileFolder, fileNames{1})));
 for n = 1: row
-    tif0 = double(imread(fullfile(fileFolder, fileNames{n})));
-    tif1 = tif0.*Mask;
+    tif1 = double(imread(fullfile(fileFolder, fileNames{n}))) - tif0;
+    tif1 = tif1.*Mask;
     intensity(n) = sum(tif1(:));
 end
 clear tif0 tif1
@@ -38,7 +40,18 @@ clear tif0 tif1
 X = [1:1:row]';
 figure('color','w');
 plot(X, intensity);
+xlim([0, 2050]);
+xlabel('Frames','fontsize',10);
+ylabel('Intensity','fontsize',10);
 
+%%
+c = length(find(Mask(:)~=0));
+average_intensity = intensity/c;
+figure('color','w');
+plot(X, average_intensity);
+xlim([0, 2050]);
+xlabel('Frames','fontsize',10);
+ylabel('Intensity','fontsize',10);
 
 %% -- Laplace and iLaplace dROI for Current info
 
