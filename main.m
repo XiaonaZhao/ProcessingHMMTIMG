@@ -15,7 +15,7 @@ clear
 
 %%
 % 1. Read .tiff files names
-fileFolder = fullfile('E:\20181227_MoS2_CH18-SH\A6_zone1_10mMRu250mMPBNa_0 -0-4V_0-1VpS_2c_MoS2_uncorrosion_CH18-S-Au_HMMT100fps');
+fileFolder = fullfile('F:\20190116_MoS2_CH18-SH_0108\B1_empty_10mMRu250mMPBNa_0 -0-4V_0-1VpS_2c_MoS2_CH18-S-Au_HMMT1600fps');
 dirOutput = dir(fullfile(fileFolder,'*.tif'));
 dirFile = sortObj(dirOutput);
 fileNames = {dirFile.name}';
@@ -27,7 +27,7 @@ row = size(fileNames, 1);
 % 5. Release the original image
 % 6. loop 2 to 5
 intensity = zeros(row, 1);
-Mask =~ imread('E:\20181227_MoS2_CH18-SH\recount_IMG\mask_1227_z1_A6.tif');
+Mask =~ imread('F:\20190116_MoS2_CH18-SH_0108\MaskA1.tif');
 tif0 = double(imread(fullfile(fileFolder, fileNames{1})));
 for n = 1: row
     tif1 = double(imread(fullfile(fileFolder, fileNames{n}))) - tif0;
@@ -40,11 +40,11 @@ clear tif0 tif1
 X = [1:1:row]';
 figure('color','w');
 plot(X, intensity);
-xlim([0, 2050]);
+% xlim([0, 2050]);
 xlabel('Frames','fontsize',10);
 ylabel('Intensity','fontsize',10);
 
-%%
+%% Get average
 c = length(find(Mask(:)~=0));
 average_intensity = intensity/c;
 figure('color','w');
@@ -52,6 +52,33 @@ plot(X, average_intensity);
 xlim([0, 2050]);
 xlabel('Frames','fontsize',10);
 ylabel('Intensity','fontsize',10);
+
+%% substract sampling CV with empty CV, performed only at Wenli Lv's PC
+% Input sampling CV
+fileFolder1 = fullfile('F:\20190116_MoS2_CH18-SH_0108\A1_z1_10mMRu250mMPBNa_0 -0-4V_0-1VpS_2c_MoS2_CH18-S-Au_HMMT1600fps');
+dirOutput1 = dir(fullfile(fileFolder1,'*.tif'));
+dirFile1 = sortObj(dirOutput1);
+fileNames1 = {dirFile1.name}';
+tifBegin1 = double(imread(fullfile(fileFolder1, fileNames1{1})));
+% Input empty background CV
+fileFolder2 = fullfile('F:\20190116_MoS2_CH18-SH_0108\B1_empty_10mMRu250mMPBNa_0 -0-4V_0-1VpS_2c_MoS2_CH18-S-Au_HMMT1600fps');
+dirOutput2 = dir(fullfile(fileFolder2,'*.tif'));
+dirFile2 = sortObj(dirOutput2);
+fileNames2 = {dirFile2.name}';
+tifBegin2 = double(imread(fullfile(fileFolder2, fileNames2{1})));
+
+row = 16*1600 + 1;
+path = 'F:\20190116_MoS2_CH18-SH_0108\tiff_A1subB1';
+for n = 1:row
+    tifSample1 = double(imread(fullfile(fileFolder1, fileNames1{n+4258}))) - tifBegin1; % uniformization
+    tifSample2 = double(imread(fullfile(fileFolder2, fileNames2{n+2945}))) - tifBegin2; % uniformization
+    tifSample = tifSample1 - tifSample2; % matlab cannot process 32-bit TIFF files.
+    file = fileNames1{n};
+    pathfile = fullfile(path, file);
+    imwrite(tifSample, pathfile, 'tiff');
+end
+
+
 
 %% -- Laplace and iLaplace dROI for Current info
 
