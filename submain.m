@@ -44,9 +44,10 @@ end
 %% -- have a view of signal frequency spectrum
 
 % - signal frequency spectrum
-Fs = 50; % low-speed hamamatsu camera
+% Fs = 50; % low-speed hamamatsu camera
 % Fs = 100; % normal hamamatsu camera
-% Fs = 1600; % high-speed hamamatsu camera
+% Fs = 200; % normal hamamatsu camera with darker field
+Fs = 1600; % high-speed hamamatsu camera
 for n = 1:col
     [f1, P1] = fft_P1(Y(:, n), Fs);
     figure('color','w');
@@ -71,15 +72,16 @@ end
 %% Check the lowp filter
 i = 1;
 figure('color','w');
-% plot(X, Y(:, i))
-plot(number, Y)
+plot(X, Y(:, i))
+% plot(number, Y)
 hold on
-% filterY(:, i) = lowp(Y(:, i), 5, 29, 0.1, 20, Fs);% Fs = 1600
-filterY = lowp(Y, 5*0.1, 92*0.1, 7*0.01, 9, Fs); % Fs = 50
-% plot(X, filterY(:, i))
-plot(number, filterY)
-% xlim([0, 25600]) % Fs = 1600
-xlim([800, 1200])
+filterY(:, i) = lowp(Y(:, i), 5, 29, 0.1, 20, Fs);% Fs = 1600
+% filterY = lowp(Y, 5*0.1, 92*0.1, 7*0.01, 9, Fs); % Fs = 50
+% filterY = lowp(Y, 4, 30, 0.1, 20, Fs); % Fs = 200
+plot(X, filterY(:, i))
+% plot(number, filterY)
+xlim([0, 25600]) % Fs = 1600
+% xlim([1, 800])
 hold off
 
 %% re-check
@@ -139,7 +141,7 @@ end
 
 % save comparing figures
 reName = 'detrend_';
-INpath = 'F:\20190116_MoS2_CH18-SH_0108\detrend figures';
+INpath = 'E:\20190116_MoS2_CH18-SH_0108\detrend figures';
 
 % x = [0 13182 25601]';
 % y = [-0.0003 -47.19 -64.74]';
@@ -193,6 +195,7 @@ plot(N, value, 'o');
 %      'std'    detect changes in standard deviation
 %      'linear' detect changes in mean and slope
 iN = findchangepts(value,'Statistic','linear','MinThreshold',var(value))
+% iN = findchangepts(Y,'MaxNumChanges',1,'Statistic','linear')
 
 
 % joinpointValue = lsq_lut_piecewise(N, value, 2);
@@ -206,10 +209,11 @@ iN = findchangepts(value,'Statistic','linear','MinThreshold',var(value))
 
 a1 = N(1:3); b1 = value(1:3); c1 = polyfit(a1,b1,1); d1 = polyval(c1, a1);
 a2 = N(4:10); b2 = value(4:10);
-c2 = polyfit(a2,b2,1);d2 = polyval(c2, a2);
-a3 = fit(N,value,'power1'); % cfit
+c2 = polyfit(a2,b2,1); d2 = polyval(c2, a2);
+a3 = fit(N, value, 'power1'); % cfit
 figure('color','w');
-plot(N, value, 'o');
+plot(a3, N, value, 'o');
 hold on
-plot(a1, d1,'k');plot(a2, d2,'k');
+plot(a1, d1,'k'); plot(a2, d2,'k');
+% plot(a3, N, value,'r');
 hold off
