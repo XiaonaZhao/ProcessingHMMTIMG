@@ -15,7 +15,7 @@ clear
 
 %%
 % 1. Read .tiff files names
-fileFolder = fullfile('F:\20190116_MoS2_CH18-SH_0108\B1_empty_10mMRu250mMPBNa_0 -0-4V_0-1VpS_2c_MoS2_CH18-S-Au_HMMT1600fps');
+fileFolder = fullfile('E:\20181227_MoS2_CH18-SH\recount_IMG\mask-mono');
 dirOutput = dir(fullfile(fileFolder,'*.tif'));
 dirFile = sortObj(dirOutput);
 fileNames = {dirFile.name}';
@@ -81,10 +81,14 @@ end
 
 
 %% -- Laplace and iLaplace dROI for Current info
-
-Current = intensity2current(intensity, row);
+Current = zeros(size(Y(2:end,:)));
+for n = 1:col
+% Current(:,n) = intensity2current(intensity(:,n), row);
+Current(:,n) = intensity2current(filterY(:,n), 801);
 % clear Intensity imgNum
+end
 disp('***''Average each dROI'' has finished***');
+
 
 
 %% -- plot Current
@@ -93,9 +97,14 @@ BeginVolt = input(prompt);
 prompt = 'Please input the middle voltage:\n ';
 EndVolt = input(prompt);
 Voltage  = calculateVolt(Current, BeginVolt, EndVolt); % calaulate the X axis - Voltage
-
-figure
-plot(Voltage, Current);
+%%
+figure('color','w');
+% plot(Voltage, Current);
+for n = 1:col
+    %     plot(X, Y(:, n)); % get raw lines
+    plot(X(4:end), -Current((3:end), n), '.'); % get fitted lines
+    hold on
+end
 title('Graph of current calculated by SPR intensity'); % plot title
 xlabel('Voltage/V') % x-axis label
 ylabel('Current/A') % y-axis label

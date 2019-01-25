@@ -45,15 +45,15 @@ end
 
 % - signal frequency spectrum
 % Fs = 50; % low-speed hamamatsu camera
-% Fs = 100; % normal hamamatsu camera
+Fs = 100; % normal hamamatsu camera
 % Fs = 200; % normal hamamatsu camera with darker field
-Fs = 1600; % high-speed hamamatsu camera
+% Fs = 1600; % high-speed hamamatsu camera
 for n = 1:col
     [f1, P1] = fft_P1(Y(:, n), Fs);
     figure('color','w');
     plot(f1, P1);
     % hold on
-    xlim([1, 50]);
+    xlim([1, 15]);
     xlabel('f (Hz)','fontsize',10)
     ylabel('|P(f)|','fontsize',10)
     l = num2str(n);
@@ -66,21 +66,25 @@ end
 % Chebyshev low pass filter
 filterY = zeros(size(Y));
 for n = 1:col
-    filterY(:, n) = lowp(Y(:, n), 5, 29, 0.1, 20, Fs); % Fs = 1600
+%     filterY(:, n) = lowp(Y(:, n), 5, 29, 0.1, 20, Fs); % Fs = 1600
+    filterY(:, n) = lowp(Y(:, n), 4, 30, 0.1, 20, Fs); % Fs = 100
 end
 
 %% Check the lowp filter
-i = 1;
+% i = 2;
 figure('color','w');
-plot(X, Y(:, i))
+% plot(X, Y(:, i))
+plot(X(4:end), b(3:end))
 % plot(number, Y)
 hold on
-filterY(:, i) = lowp(Y(:, i), 5, 29, 0.1, 20, Fs);% Fs = 1600
+% filterY(:, i) = lowp(Y(:, i), 5, 29, 0.1, 20, Fs);% Fs = 1600
 % filterY = lowp(Y, 5*0.1, 92*0.1, 7*0.01, 9, Fs); % Fs = 50
-% filterY = lowp(Y, 4, 30, 0.1, 20, Fs); % Fs = 200
-plot(X, filterY(:, i))
+% filterY = lowp(Y, 4, 21, 0.1, 20, Fs); % Fs = 200
+filterB = lowp(b, 2, 21, 32*0.1, 188*0.1, Fs); % Fs = 200
+% plot(X, filterY(:, i))
+plot(X(4:end), filterB(3:end))
 % plot(number, filterY)
-xlim([0, 25600]) % Fs = 1600
+% xlim([0, 25600]) % Fs = 1600
 % xlim([1, 800])
 hold off
 
