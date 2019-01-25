@@ -15,12 +15,25 @@ clear
 
 %%
 % 1. Read .tiff files names
-fileFolder = fullfile('E:\20181227_MoS2_CH18-SH\recount_IMG\mask-mono');
-dirOutput = dir(fullfile(fileFolder,'*.tif'));
-dirFile = sortObj(dirOutput);
-fileNames = {dirFile.name}';
-row = size(fileNames, 1);
+tifFile = 'E:\20181227_MoS2_CH18-SH\recount_IMG\mono_-0-4V';
+tifFolder = fullfile(tifFile);
+dirOutput = dir(fullfile(tifFolder, '*.tif'));
+dirFileTif = sortObj(dirOutput);
+tifNames = {dirFileTif.name}';
 
+maskFile = 'E:\20181227_MoS2_CH18-SH\recount_IMG\mask-mono';
+maskFolder = fullfile(maskFile);
+dirOutput = dir(fullfile(maskFolder, '*.tif'));
+dirFileMask = sortObj(dirOutput);
+maskNames = {dirFileMask.name}';
+
+if size(tifNames, 1) == size(maskNames, 1)
+    row = size(tifNames, 1);
+else
+    disp('***''The amount of TIFF doesn''t match that of MASK.***');
+end
+
+%%
 % 2. Read one .tiff file
 % 3. Use a fixed mask on the image into new one
 % 4. Sum the the new image to return x
@@ -83,9 +96,9 @@ end
 %% -- Laplace and iLaplace dROI for Current info
 Current = zeros(size(Y(2:end,:)));
 for n = 1:col
-% Current(:,n) = intensity2current(intensity(:,n), row);
-Current(:,n) = intensity2current(filterY(:,n), 801);
-% clear Intensity imgNum
+    % Current(:,n) = intensity2current(intensity(:,n), row);
+    Current(:,n) = intensity2current(filterY(:,n), 801);
+    % clear Intensity imgNum
 end
 disp('***''Average each dROI'' has finished***');
 
@@ -110,3 +123,10 @@ xlabel('Voltage/V') % x-axis label
 ylabel('Current/A') % y-axis label
 disp('***''plot Current'' has finished***');
 
+%%
+s = zeros(row, 1);
+for n = 1:row
+    img = imread(fullfile(tifFolder, tifNames{n}));
+    mask = imread(fullfile(maskFolder, maskNames{n}));
+    s(n) = calculateROIintensity(img, mask);
+end
