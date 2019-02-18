@@ -132,7 +132,7 @@ assert(all(tmp(:)),'First input <X> must be a cell array of strings (1xN charact
 pth = regexp(pth,'[^/\\]+','match'); % either / or \ as filesep.
 len = cellfun('length',pth);
 num = max(len);
-vec{numel(len)} = [];
+vec{(numel(len))} = [];
 %
 % Natural-order sort of the file extensions and filenames:
 if nargout<3 % faster:

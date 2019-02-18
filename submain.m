@@ -188,7 +188,7 @@ for n = 1:col
 end
 
 %% -- plot and multiple linear regression
-N = [1:1:col]';
+N = (1:col)';
 figure('color','w');
 plot(N, value, 'o');
 
@@ -198,7 +198,7 @@ plot(N, value, 'o');
 %      'rms'    detect changes in root-mean-square level
 %      'std'    detect changes in standard deviation
 %      'linear' detect changes in mean and slope
-iN = findchangepts(value,'Statistic','linear','MinThreshold',var(value))
+iN = findchangepts(value,'Statistic','linear','MinThreshold',var(value));
 % iN = findchangepts(Y,'MaxNumChanges',1,'Statistic','linear')
 
 

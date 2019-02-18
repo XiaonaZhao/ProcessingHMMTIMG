@@ -15,17 +15,11 @@ clear
 
 %%
 % 1. Read .tiff files names
-tifFile = 'E:\20181227_MoS2_CH18-SH\recount_IMG\mono_-0-4V';
-tifFolder = fullfile(tifFile);
-dirOutput = dir(fullfile(tifFolder, '*.tif'));
-dirFileTif = sortObj(dirOutput);
-tifNames = {dirFileTif.name}';
+tifFile = 'J:\20190108_MoS2_CH18-SH\B1_N1_10mMRu250mMPBNa_0 -0-4V_2c_0-1VpS_MoS2_CH18-S-Au_sp80_HMMT100fps';
+[tifFolder, tifNames] = ReadTifFileNames(tifFile);
 
 maskFile = 'E:\20181227_MoS2_CH18-SH\recount_IMG\mask-mono';
-maskFolder = fullfile(maskFile);
-dirOutput = dir(fullfile(maskFolder, '*.tif'));
-dirFileMask = sortObj(dirOutput);
-maskNames = {dirFileMask.name}';
+[maskFolder, maskNames] = ReadTifFileNames(maskFile);
 
 if size(tifNames, 1) == size(maskNames, 1)
     row = size(tifNames, 1);
@@ -50,7 +44,7 @@ end
 clear tif0 tif1
 
 % 7. plot x
-X = [1:1:row]';
+X = (1:row)';
 figure('color','w');
 plot(X, intensity);
 % xlim([0, 2050]);
@@ -110,6 +104,7 @@ BeginVolt = input(prompt);
 prompt = 'Please input the middle voltage:\n ';
 EndVolt = input(prompt);
 Voltage  = calculateVolt(Current, BeginVolt, EndVolt); % calaulate the X axis - Voltage
+
 %%
 figure('color','w');
 % plot(Voltage, Current);
