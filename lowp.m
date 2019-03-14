@@ -3,7 +3,7 @@ function y = lowp(x, f1, f3, rp, rs, Fs)
 
 wp = 2*pi*f1/Fs;
 ws = 2*pi*f3/Fs;
-[n, wn] = cheb1ord(wp/pi, ws/pi, rp, rs);
+[n, ~] = cheb1ord(wp/pi, ws/pi, rp, rs);
 [bz1, az1] = cheby1(n, rp, wp/pi);
 % [h, w] = freqz(bz1, az1, 256, Fs);
 % h = 20*log10(abs(h));

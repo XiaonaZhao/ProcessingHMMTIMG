@@ -21,3 +21,4 @@ figure
 subplot(1,2,1), imshow(f), title('original image');
 subplot(1,2,2),imshow(g, []), title('HpLpfiltered');
 impixelinfo
+end

@@ -36,8 +36,8 @@ end
 
 figure('color','w');
 for n = 1:col
-    %     plot(X, Y(:, n)); % get raw lines
-    plot(X, Yfit(:, n)); % get fitted lines
+        plot(X, Y(:, n)); % get raw lines
+%     plot(X, Yfit(:, n)); % get fitted lines
     hold on
 end
 
@@ -215,9 +215,9 @@ a1 = N(1:3); b1 = value(1:3); c1 = polyfit(a1,b1,1); d1 = polyval(c1, a1);
 a2 = N(4:10); b2 = value(4:10);
 c2 = polyfit(a2,b2,1); d2 = polyval(c2, a2);
 a3 = fit(N, value, 'power1'); % cfit
-figure('color','w');
+figure('color', 'w');
 plot(a3, N, value, 'o');
 hold on
-plot(a1, d1,'k'); plot(a2, d2,'k');
+plot(a1, d1, 'k'); plot(a2, d2, 'k');
 % plot(a3, N, value,'r');
 hold off

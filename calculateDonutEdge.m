@@ -4,6 +4,7 @@ function [insideEdge, outsideEdge] = calculateDonutEdge(img, mask)
 [insideRing, outsideRing] = detectDonutEdge(mask); 
 insideEdge = ROImean(img, insideRing);
 outsideEdge = ROImean(img, outsideRing);
+end
 
 % BWedge = bwperim(centralMask);
 % figure('color', 'w'); % check figure
