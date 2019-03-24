@@ -1,8 +1,9 @@
 function [f, P1] = fft_P1(X, Fs)
+% Nyquist Amplitude of X
 
+% Fs, Nyquist sampling Frequence
+% X, signal.
 
-% Fs = 800;
-% X = Current(3:end, 2);
 Y = fft(X);
 L = length(X);
 P2 = abs(Y/L);

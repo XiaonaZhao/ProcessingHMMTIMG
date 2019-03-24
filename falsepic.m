@@ -84,6 +84,7 @@ impixelinfo
 
 % fft2
 f_1 =  tif{67, 2};
+%%
 F_1 = fft2(f_1);
 S_1 = fftshift(log(1+abs(F_1)));
 S_1 = gscale(S_1, 'full16');
@@ -103,6 +104,7 @@ subplot(3,2,3);imshow(abs(H_1),[ ]);title('频域滤波器:垂直soble掩模_1');
 subplot(3,2,4);imshow(abs(H1_1),[ ]);title('频域经fftshift处理后的滤波器_1');
 subplot(3,2,5);imshow(gs_1,[ ]);title('空间域滤波器:垂直soble掩模_1');
 subplot(3,2,6);imshow(gf_1,[ ]);title('空间域经fftshift处理后的滤波器_1');
+%%
 
 % hist
 figure, imhist(uint16(f_1)), ylim('auto');
@@ -122,24 +124,30 @@ figure('color', 'w');
 subplot(2,2,1); imshow(f_1);
 subplot(2,2,2); imshow();
 
-% edge detected
+%% edge detected
 [g_canny_default, tc] = edge(g, 'canny');
 g_canny_best = edge(g, 'canny', [30*0.001 30*0.010], 18);
 
 figure
-subplot(2,2,1), imshow(f), title('original image');
-subplot(2,2,2), imshow(g, []), title('HpLpfiltered');
-subplot(2,2,3), imshow(K), title('Adaptive Filtered');
-subplot(2,2,4), imshow(g_canny_best) % just fine
+subplot(2,2,1)
+imshow(f), title('original image');
+subplot(2,2,2)
+imshow(g, []), title('HpLpfiltered');
+subplot(2,2,3)
+imshow(K), title('Adaptive Filtered');
+subplot(2,2,4)
+imshow(g_canny_best) % just fine
 % xlim([492 597])
 % ylim([541 647])
+%%
 
 [g_sobel_default, ts] = edge(g, 'sobel');
 g_sobel_best = edge(g, 'sobel', 5.5); % ts = 5.6237
 
-figure
+% figure
 imshow(g_sobel_best) % poor connectivity
 
+%%
 % Adaptive Filter
 K = mywiener2(g, [5 5]);
 
