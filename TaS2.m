@@ -3,7 +3,11 @@ function TaS2(expName, maskPath, loader, rate, saveRoute)
 if rate == 300
     r = -0.003;
     potential1 = (0 : r : -0.8)';
-    potential2 = (-799 : (-r) : r)';
+    potential2 = (-0.799 : (-r) : 0)';
+    potential3 = (0.002 : r : -0.8)';
+    potential4 = (-0.798 : (-r) : 0)';
+    Value.potential = [potential1' potential2' potential3' potential4']';
+    clear potential1 potential2 potential3 potential4
 else
     
     if rate == 50
@@ -20,10 +24,9 @@ else
     
     potential1 = (0 : r : -0.8)';
     potential2 = ((-0.8-r) : (-r) : -0.0000001)';
+    Value.potential = [potential1' potential2' potential1' potential2']';
+    clear potential1 potential2
 end
-
-Value.potential = [potential1' potential2' potential1' potential2']';
-clear potential1 potential2
 
 [~, Value.tifFile] = uigetfile('*.tiff', 'Multiselect', 'on', 'Read tif Folder');
 Value.tifDir = dir(fullfile(Value.tifFile, '*.tiff'));
@@ -51,6 +54,7 @@ for n = 1:length(Value.maskNames)
     curve = zeros(size(points));
     for ii = 1:1:col
         curve(:, ii) = lowp(points(:, ii), 1, 36, 0.1, 20, Fs); % SPR, 20;
+        %         curve(:, ii) = lowp(points(:, ii), 2, 11, 0.1, 20, Fs); % Bright Field, CV;
     end
     clear points
     
@@ -84,7 +88,7 @@ hold on
 for n = 1:length(Value.maskNames)
     outside = Value.outside{n, 1};
     for ii = 1:2
-        plot(Value.potential, -outside(:, ii), '.k')
+        plot(Value.potential, outside(:, ii), '.k')
     end
 end
 xlabel('Potential/V'); ylabel('\DeltaIntensity''');
@@ -92,3 +96,4 @@ title([expName ' \DeltaIntensity'' with Potential, Na_2SO_4'])
 hold off
 figPath2 = [saveRoute '\' expName '_intensityVSpotential' num2str(n) ];
 saveas(img2, figPath2, 'fig')
+end

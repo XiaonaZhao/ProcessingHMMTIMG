@@ -171,17 +171,56 @@ tifFile = convertStringsToChars(strcat(expStruct(7).disc, expStruct(7).index));
 [tifFolder, tifNames] = ReadTifFileNames(tifFile);
 
 tif0 = double(imread(fullfile(tifFolder, tifNames{1})));
-tif515 = double(imread(fullfile(tifFolder, tifNames{513}))) - tif0;
+%%
+for n = 1:81
+% n = 36;
+tif1_n = D3_C1.sampleArea{n};
+% tif1_n = B1_A4.sampleArea_cut{n};
+% tif1_n = double(imread(fullfile(tifFolder, tifNames{n}))) - tif0;
+% % tif_n = double(imread(fullfile(tifFolder, tifNames{n-2})));
+% 
+% mask = double(imread(fullfile(maskFolder, maskNames{1}))/255);
+% tif1_n = tif1_n.*mask;
 
-redCon515 = (-tif515)*10/(-filterCurve(401));
-localSums = imboxfilt(redCon515, 11);
+if n > 40
+    Voltage = -0.4 + ((n-40)/40)*0.4;
+else 
+    Voltage = -(n/40)*0.4;
+end
+
+redCon_n = (-tif1_n)*10/(-filterCurve(400));
+localSums = imboxfilt(redCon_n, 11);
 localSums0 = localSums;
 localSums = abs(localSums);
 localSums(localSums > 10) = 10;
-figure('color', 'w');
-imshow(localSums, 'DisplayRange',[]);
+% figure('color', 'w');
+imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
+title([num2str(Voltage), ' V']);
 colormap jet 
 map=colormap('jet');
 colorbar;
+% impixelinfo
+set(gca, 'CLim', [0 10]);
 h=colorbar;
-set(get(h,'title'),'string','mM');
+set(get(h,'title'),'string','Ru(II), mM');
+saveas(gcf,[savepath, 'D3_C1' num2str(n, '%04d'), '.tif']);
+end
+
+%%
+path = 'E:\20181123_MoS2_CH18\TIFF_Ru-PBS\';   %原文件路径
+savepath = 'E:\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3-C1_title\';   %新文件路径    
+
+for ii = 1:31   %图片层数，可通过windows图片查看器知晓  
+    I = double(imread([path, 'B1_A4_Cut_1_31.tif'], ii));   %读入文件的第i页
+    imwrite(I, [savepath, 'A4' num2str(ii, '%04d'), '.tif']);   %保存单层图片，以其在原文件中的顺序命名
+end
+
+%%
+vedio = VideoWriter('demo.avi'); %初始化一个avi文件
+vedio.FrameRate = 5;
+open(vedio);
+for ii=1:80  %图像序列个数
+    frame = imread(fullfile(tifFolder, tifNames{ii}));
+    writeVideo(vedio,frame);
+end
+close(vedio);

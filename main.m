@@ -15,10 +15,10 @@ clear
 
 %%
 % 1. Read .tiff files names
-tifFile = 'J:\20190108_MoS2_CH18-SH\B1_N1_10mMRu250mMPBNa_0 -0-4V_2c_0-1VpS_MoS2_CH18-S-Au_sp80_HMMT100fps';
+tifFile = 'E:\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3-C1_title';
 [tifFolder, tifNames] = ReadTifFileNames(tifFile);
 
-maskFile = 'E:\20181227_MoS2_CH18-SH\recount_IMG\mask-mono';
+maskFile = 'E:\20181123_MoS2_CH18\matlabMask';
 [maskFolder, maskNames] = ReadTifFileNames(maskFile);
 
 if size(tifNames, 1) == size(maskNames, 1)
