@@ -15,7 +15,7 @@ clear
 
 %%
 % 1. Read .tiff files names
-tifFile = 'E:\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3-C1_title';
+tifFile = 'H:\TaS2\B4_K_0 -0-8V_0-4VpS_2c_Pike100fps_2';
 [tifFolder, tifNames] = ReadTifFileNames(tifFile);
 
 maskFile = 'E:\20181123_MoS2_CH18\matlabMask';

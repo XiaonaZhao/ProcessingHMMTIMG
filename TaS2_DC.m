@@ -38,14 +38,15 @@ for n = 1:length(Value.maskNames)
     saveas(img, figPath, 'fig')
     
     tif0 = double(imread(fullfile(Value.tifFile, Value.tifDir(1).name)));
-    Value.roi = zeros(size(X));
+    roimean = zeros(size(X));
     for ii = 1:size(curve, 1)
         roi =  (double(imread(fullfile(Value.tifFile, Value.tifDir(ii).name))) - tif0).*mask;
-        Value.roi(ii) = -ROImean(roi, mask);
+        roimean(ii) = -ROImean(roi, mask);
     end
+    Value.roimean(:, n) = roimean;
     
     img0 = figure('color','w');
-    plot(X, Value.roi, 'k')
+    plot(X, Value.roimean(:, n), 'k')
     xlabel('Frames'); ylabel('\DeltaIntensity');
     title([expName ' Na_2SO_4 averaged ROI' num2str(n)])
     figPath = [saveRoute '\' expName '_average_roi' num2str(n) ];

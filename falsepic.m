@@ -125,8 +125,11 @@ subplot(2,2,1); imshow(f_1);
 subplot(2,2,2); imshow();
 
 %% edge detected
+g = d;
 [g_canny_default, tc] = edge(g, 'canny');
-g_canny_best = edge(g, 'canny', [30*0.001 30*0.010], 18);
+g_canny_best = edge(g, 'canny', [0.0063 0.0156], 1);
+imshow(g_canny_best, 'DisplayRange',[], 'InitialMagnification', 'fit')
+%%
 
 figure
 subplot(2,2,1)
@@ -140,9 +143,9 @@ imshow(g_canny_best) % just fine
 % xlim([492 597])
 % ylim([541 647])
 %%
-
+g = d;
 [g_sobel_default, ts] = edge(g, 'sobel');
-g_sobel_best = edge(g, 'sobel', 5.5); % ts = 5.6237
+g_sobel_best = edge(g, 'sobel', 56.5); % ts = 5.6237
 
 % figure
 imshow(g_sobel_best) % poor connectivity

@@ -1,5 +1,11 @@
 function TiS2(expName, maskPath, loader, rate, saveRoute, Fs)
 
+[~, Value.tifFile] = uigetfile('*.tiff', 'Multiselect', 'on', 'Read tif Folder');
+Value.tifDir = dir(fullfile(Value.tifFile, '*.tiff'));
+
+
+tic
+
 if rate == 50
     r = -0.0005;
 elseif rate == 100
@@ -19,10 +25,6 @@ potential2 = ((-0.6-r) : (-r) : -0.0000001)';
 Value.potential = [potential1' potential2' potential1' potential2']';
 clear potential1 potential2
 
-
-[~, Value.tifFile] = uigetfile('*.tiff', 'Multiselect', 'on', 'Read tif Folder');
-Value.tifDir = dir(fullfile(Value.tifFile, '*.tiff'));
-
 varMat = load(loader);
 begin = triggerTime(varMat.data, varMat.t);
 Value.validDir = Value.tifDir(begin.frame:(begin.frame+length(Value.potential)));
@@ -31,6 +33,7 @@ Value.begin = begin;
 Value.maskPath = maskPath;
 [~, Value.maskNames] = ReadTifFileNames(Value.maskPath);
 
+hwait = waitbar(0, 'Please wait for the test >>>>>>>>');
 for n = 1:length(Value.maskNames)
     Mask = imread(fullfile(Value.maskPath, Value.maskNames{n}));
     mask = ~Mask;
@@ -65,10 +68,12 @@ for n = 1:length(Value.maskNames)
         plot(X, outside(:, ii), '.k')
     end
     xlabel('Frames'); ylabel('\DeltaIntensity''');
-    title([expName ' Na_2SO_4 ROI' num2str(n)])
+    title([expName ' K_2SO_4 ROI' num2str(n)])
     hold off
     figPath = [saveRoute '\' expName '_roi' num2str(n) ];
     saveas(img, figPath, 'fig')
+    
+    processBar(length(Value.maskNames), n, hwait)
     
 end
 
@@ -84,10 +89,12 @@ for n = 1:length(Value.maskNames)
     end
 end
 xlabel('Potential/V'); ylabel('\DeltaIntensity''');
-title([expName ' \DeltaIntensity'' with Potential, Na_2SO_4'])
+title([expName ' \DeltaIntensity'' with Potential, K_2SO_4'])
 hold off
 
 figPath2 = [saveRoute '\' expName '_intensityVSpotential' num2str(n) ];
 saveas(img2, figPath2, 'fig')
+
+toc
 
 end

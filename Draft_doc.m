@@ -282,3 +282,8 @@ plot(potential(2001:4000), Na_400(2001:4000), 'LineWidth', 2)
 legend('Na_2SO_4, 100 mV/s', 'Li_2SO_4, 100 mV/s', 'Na_2SO_4, 400 mV/s')
 xlabel('Potential/V'); ylabel('Current/A');
 hold off
+
+%%
+
+Y1 = lowp(Y, 6, 13, 0.1, 20, 100); % Bright Field, CV;
+plot(X, Y)
