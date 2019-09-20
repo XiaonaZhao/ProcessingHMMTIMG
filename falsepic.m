@@ -161,10 +161,90 @@ subplot(1,3,2), imshow(g, []), title('HpLpfiltered');
 subplot(1,3,3), imshow(K), title('Adaptive Filtered');
 
 impixelinfo
+%% jpg edge detection
+% describe it as the detection of area
+savepath = 'G:\TaS2\20190501_TaS2_ITO\_Result_106_std\Pics\';
+% from 17 -> 20 TaS2_20190507_C2_video_frames
+for ii = 17:20
+    % ii = 22;
+    I = frame{ii, 1};
+    subplot(231)
+    imshow(I, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    
+    I0 = rgb2gray(I);
+    subplot(232)
+    imshow(I0, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    
+    I1 = imboxfilt(I0, 11);
+    subplot(233)
+    imshow(I1, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    
+    I2 = im2bw(mat2gray(I1),259*0.001);
+    subplot(234)
+    imshow(I2, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    
+    imLabel = bwlabel(~im2bw(mat2gray(imboxfilt(rgb2gray(frame{22, 1}), 13)), 242*0.001));
+    stats = regionprops(imLabel, 'Area');
+    area = cat(1, stats.Area);
+    index = find(area == max(area));% Find the index of the smallest connected domain
+    centralBW = ismember(imLabel, index);
+    I3  = and(~I2, centralBW);
+    subplot(235)
+    imshow(I3, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    
+    imLabel = bwlabel(~I3);% Mark each connected domain
+    stats = regionprops(imLabel, 'Area');% Count the size of each connected domain
+    area = cat(1, stats.Area);
+    index = find(area == max(area));% Find the index of the smallest connected domain
+    centralBW = ismember(imLabel, index);
+    subplot(236)
+    imshow(centralBW, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    
+    imwrite(centralBW, [savepath, '\' 'C2_' num2str(ii, '%04d'), '.tif']);
+    
+    close gcf
+end
+% for ii = 1:size(frame, 1)
+for ii = 21:36
+    % from 21 -> 36 TaS2_20190506_C2_video_frames
+    % ii = 35;
+    I = frame{ii, 1};
+    
+    subplot(231)
+    imshow(I, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    I0 = rgb2gray(I);
+    subplot(232)
+    imshow(I0, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    I1 = imboxfilt(I0, 13);
+    subplot(233)
+    imshow(I1, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    
+    %     I2 = binary_iterate(I1);
+    % %     [I2, reT] = binary_otus(I1);
+    %     I2 = binary_bernsen(I1);
+    %     I2 = im2bw(mat2gray(I1),reT);
+    I2 = im2bw(mat2gray(I1),242*0.001);
+    %     I_12 = binary_otus(I_10);
+    subplot(235)
+    imshow(I2, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    
+    imLabel = bwlabel(~I2);% Mark each connected domain
+    stats = regionprops(imLabel, 'Area');% Count the size of each connected domain
+    area = cat(1, stats.Area);
+    index = find(area == max(area));% Find the index of the smallest connected domain
+    centralBW = ismember(imLabel, index);
+    subplot(236)
+    imshow(~centralBW, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    %     I2 = im2bw(mat2gray(I1), reT);
+    imwrite(~centralBW, [savepath, '\' 'C2_' num2str(ii, '%04d'), '.tif']);
+    %     saveas(gcf,[savepath, '\' 'C2_' num2str(ii, '%04d'), '.tif']);
+    close gcf
+end
+
+
 
 %% LMS stochastic gradient descent
 
-%% 
 fields = {'number', 'darkest', 'reduced', 'disc', 'tifFile'};
 tifFile = strcat(maskTab{1,2},maskTab{1,3});
 
@@ -176,54 +256,67 @@ tifFile = convertStringsToChars(strcat(expStruct(7).disc, expStruct(7).index));
 tif0 = double(imread(fullfile(tifFolder, tifNames{1})));
 %%
 for n = 1:81
-% n = 36;
-tif1_n = D3_C1.sampleArea{n};
-% tif1_n = B1_A4.sampleArea_cut{n};
-% tif1_n = double(imread(fullfile(tifFolder, tifNames{n}))) - tif0;
-% % tif_n = double(imread(fullfile(tifFolder, tifNames{n-2})));
-% 
-% mask = double(imread(fullfile(maskFolder, maskNames{1}))/255);
-% tif1_n = tif1_n.*mask;
-
-if n > 40
-    Voltage = -0.4 + ((n-40)/40)*0.4;
-else 
-    Voltage = -(n/40)*0.4;
-end
-
-redCon_n = (-tif1_n)*10/(-filterCurve(400));
-localSums = imboxfilt(redCon_n, 11);
-localSums0 = localSums;
-localSums = abs(localSums);
-localSums(localSums > 10) = 10;
-% figure('color', 'w');
-imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
-title([num2str(Voltage), ' V']);
-colormap jet 
-map=colormap('jet');
-colorbar;
-% impixelinfo
-set(gca, 'CLim', [0 10]);
-h=colorbar;
-set(get(h,'title'),'string','Ru(II), mM');
-saveas(gcf,[savepath, 'D3_C1' num2str(n, '%04d'), '.tif']);
+    % n = 36;
+    tif1_n = D3_C1.sampleArea{n};
+    % tif1_n = B1_A4.sampleArea_cut{n};
+    % tif1_n = double(imread(fullfile(tifFolder, tifNames{n}))) - tif0;
+    % % tif_n = double(imread(fullfile(tifFolder, tifNames{n-2})));
+    %
+    % mask = double(imread(fullfile(maskFolder, maskNames{1}))/255);
+    % tif1_n = tif1_n.*mask;
+    
+    if n > 40
+        Voltage = -0.4 + ((n-40)/40)*0.4;
+    else
+        Voltage = -(n/40)*0.4;
+    end
+    
+    redCon_n = (-tif1_n)*10/(-filterCurve(400));
+    localSums = imboxfilt(redCon_n, 11);
+    localSums0 = localSums;
+    localSums = abs(localSums);
+    localSums(localSums > 10) = 10;
+    % figure('color', 'w');
+    imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    title([num2str(Voltage), ' V']);
+    colormap jet
+    map=colormap('jet');
+    colorbar;
+    % impixelinfo
+    set(gca, 'CLim', [0 10]);
+    h=colorbar;
+    set(get(h,'title'),'string','Ru(II), mM');
+    saveas(gcf,[savepath, 'D3_C1' num2str(n, '%04d'), '.tif']);
 end
 
 %%
 path = 'E:\20181123_MoS2_CH18\TIFF_Ru-PBS\';   %原文件路径
-savepath = 'E:\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3-C1_title\';   %新文件路径    
+savepath = 'E:\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3-C1_title\';   %新文件路径
 
-for ii = 1:31   %图片层数，可通过windows图片查看器知晓  
+for ii = 1:31   %图片层数，可通过windows图片查看器知晓
     I = double(imread([path, 'B1_A4_Cut_1_31.tif'], ii));   %读入文件的第i页
     imwrite(I, [savepath, 'A4' num2str(ii, '%04d'), '.tif']);   %保存单层图片，以其在原文件中的顺序命名
 end
 
 %%
-vedio = VideoWriter('demo.avi'); %初始化一个avi文件
-vedio.FrameRate = 5;
-open(vedio);
-for ii=1:80  %图像序列个数
-    frame = imread(fullfile(tifFolder, tifNames{ii}));
-    writeVideo(vedio,frame);
+video = VideoWriter('demo.avi'); %初始化一个avi文件
+video.FrameRate = 5;
+open(video);
+for ii = 1:20  %图像序列个数
+    frame = double(imread(fullfile(tifFolder, tifNames{ii})));
+    writeVideo(video,frame);
 end
-close(vedio);
+close(video);
+
+%%
+avi2Frames('I:\TaS2\20190506_TaS2_ITO\Video\Result of C2_Li_2.avi');
+
+%%
+fileName = 'I:\TaS2\20190506_TaS2_ITO\Video\Result of C2_Li_2.avi';
+obj = VideoReader(fileName);
+numFrames = obj.NumberOfFrames;
+% numFrames = obj.CurrentTime;
+frame = cell(numFrames, 1);
+for ii = 1:numFrames
+    frame{ii, 1} = read(obj, ii);
+end

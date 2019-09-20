@@ -16,17 +16,7 @@ if rate == 300
     clear potential1 potential2 potential3 potential4
 else
     
-    if rate == 50
-        r = -0.0005;
-    elseif rate == 100
-        r = -0.001;
-    elseif rate == 200
-        r = -0.002;
-    elseif rate == 400
-        r = -0.004;
-    else
-        return
-    end
+    r = -rate/(Fs*1000);
     
     potential1 = (0 : r : -0.8)';
     potential2 = ((-0.8-r) : (-r) : -0.0000001)';
