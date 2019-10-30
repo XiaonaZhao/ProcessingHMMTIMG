@@ -130,11 +130,11 @@ end
 hold off
 
 %% 20190501_TaS2_ITO
-load('G:\TaS2\TaS2_0909_S_Aux60\_Result\expTab.mat')
+load('G:\TaS2\TaS2_1008_ITO\_Result\expTab.mat')
 
 hwait = waitbar(0, 'Please wait for the test >>>>>>>>');
 for m = 1:size(expTab, 1)
-% for m = [2 3 4 6 7 8 9 11]
+% for m = [3 4]
     expName = expTab(m).expName;
     tifPath = expTab(m).tifPath;
     Mask = expTab(m).Mask;
@@ -142,8 +142,8 @@ for m = 1:size(expTab, 1)
     saveRoute = expTab(m).saveRoute;
     rate = expTab(m).ScanRate;
     zone  = expTab(m).zone;
-    Fs = 100;
-%     Fs = expTab(m).sampleRate;
+%     Fs = 100;
+    Fs = expTab(m).sampleRate;
     
     TaS2_batch(expName, tifPath, Mask, begin, rate, saveRoute, zone, Fs);
     
@@ -236,17 +236,18 @@ plot(X, Tpoint,  X, curve)
 % xlim([6800 7800])
 % ylim([100 450])
 %%
-fields = {'expName', 'zone', 'tifPath', 'Mask', 'begin', 'ScanRate', 'saveRoute'};
+exp = cell(8, 8);
+fields = {'expName', 'zone', 'tifPath', 'Mask', 'begin', 'ScanRate', 'sampleRate', 'saveRoute'};
 expTab = cell2struct(exp, fields, 2);
 
 %%
-varMat = load('G:\MoS2_final\MoS2_0919_0802\_Timer\A2_fig.fig');
-Fs = 100;
+varMat = load('G:\TaS2\TaS2_1008_ITO\_Timer\B3_data.mat');
+Fs = expTab(8).sampleRate;
 begin = triggerTime(varMat.data, varMat.t, Fs);
 % Fs_SPR = 50; Fs_BF = 40;
 % begin = triggerTime_2Cam(varMat.data, varMat.t, Fs_SPR, Fs_BF);
 % begin = triggerTime_DC(varMat.data);
-expTab(1).begin = begin;
+expTab(8).begin = begin;
 
 %% TaS2_20190627_ITO
 for ii = 1:size(expTab, 1)
@@ -283,10 +284,10 @@ end
 
 %% 20190506_TaS2_ITO
 
-prefix = ('G:\TaS2\TaS2_0909_S_Aux60\_Result\mat\');
+prefix = ('G:\TaS2\TaS2_1008_ITO\_Result\mat_1\');
 d = sortObj(dir([prefix, '*.mat']));
 for ii = 1:size(expTab, 1)
-% for ii = [2 3 4 6 7 8 9 11]
+% for ii = [3 4]
     load([prefix, d(ii).name]);
 %     m = length(Value.validDir);
 %     expTab(ii).line = (0:(-0.8/m):-0.8)';
@@ -299,6 +300,23 @@ for ii = 1:size(expTab, 1)
     expTab(ii).timeline = (1:length(Value.ROImean))';
 end
 
+
+%% 20191008_TaS2_ITO
+
+prefix = ('G:\TaS2\TaS2_1008_ITO\_Result\_Mask\B3\');
+d = sortObj(dir([prefix, '*.tif']));
+mask = cell(5, 1);
+mask{1} = ~imread([prefix, d(1).name]);
+mask_img = mask{1};
+for ii = 2:size(d, 1)
+    mask{ii} = ~imread([prefix, d(ii).name]);
+    mask_img = mask_img + mask{ii};
+end
+mask_img = ~mask_img;
+figPath = [prefix '_B3_roi.tif'];
+imwrite(mask_img, figPath)
+
+
 %%
 x = zeros(size(expTab, 1), 1);
 y = zeros(size(expTab, 1), 1);
@@ -306,6 +324,17 @@ for ii = 1:size(expTab, 1)
     x(ii, 1) = expTab(ii).ScanRate;
     y(ii, 1) = expTab(ii).rePoten;
 end
+%%
+Y = zeros(size(X));
+Y1 = zeros(size(X, 1), 1);
+Z = zeros(size(X, 1), 1);
+for ii = 1:size(X, 1)
+    Y(ii, 1) = expTab(ii).ROImean(X(ii, 1));
+    Y(ii, 2) = expTab(ii).ROImean(X(ii, 2));
+    Y1(ii, 1) = Y(ii, 2) - Y(ii, 1);
+    Z(ii, 1) = (Y1(ii, 1))/(X(ii, 2) - X(ii, 1));
+end
+
 %%
 c1 = polyfit(scanRate,oxiPeak,1); d1 = polyval(c1, scanRate);
 c2 = polyfit(scanRate,rePeak,1); d2 = polyval(c2, scanRate);
