@@ -88,10 +88,12 @@ for ii = Value.begin.frame:(Value.begin.frame+length(Value.potential))
     tif  = (double(imread(fullfile(Value.tifFile, Value.tifDir(ii).name))) - tif0)./tif0;
 %     tif  = (double(imread(fullfile(Value.tifFile, Value.tifDir(ii).name))) - tif0);
     Value.ROImean((ii-Value.begin.frame+1), 1) = ROImean(tif, mask); % TaS2
+    Value.ROIsum((ii-Value.begin.frame+1), 1) = ROIsum(tif, mask); % TaS2
 %     Value.ROImean((ii-Value.begin.frame+1), 1) = -ROImean(tif, mask); % TiS2
 end
-% temp = lowp(Value.ROImean, 2, 12, 0.1, 20, Fs); % TaS2
-temp = lowp(Value.ROImean, 2, 12, 0.1, 20, 100); % Low sampleRate
+
+temp = lowp(Value.ROImean, 2, 12, 0.1, 20, Fs); % TaS2
+% temp = lowp(Value.ROImean, 2, 12, 0.1, 20, 100); % Low sampleRate
 % temp = lowp(Value.ROImean, 5, 22, 0.1, 20, 100); % TiS2 is not good
 % enough
 Value.dROImean = -diff(temp); clear temp
@@ -103,6 +105,16 @@ title([expName ' Averagered Intensity'' with Potential, Na_2SO_4, ' num2str(rate
 hold off
 figPath3 = [saveRoute '\' expName '_AveragedintensityVSpotential_roi_' num2str(zone)];
 saveas(img3, figPath3, 'fig')
+
+temp = lowp(Value.ROIsum, 2, 12, 0.1, 20, Fs); % Low sampleRate
+Value.dROIsum = diff(temp); clear temp
+img4 = figure('color', 'w');
+plot(Value.potential, Value.dROIsum, 'k')
+xlabel('Potential/V'); ylabel('\DeltaIntensity''');
+title([expName ' Total Intensity'' with Potential, Na_2SO_4, ' num2str(rate) ' mV/s'])
+hold off
+figPath4 = [saveRoute '\' expName '_TotalintensityVSpotential_roi_' num2str(zone)];
+saveas(img4, figPath4, 'fig')
 
 
 close all
