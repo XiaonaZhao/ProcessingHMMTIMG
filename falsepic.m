@@ -290,21 +290,21 @@ for n = 1:81
 end
 
 %%
-path = 'E:\20181123_MoS2_CH18\TIFF_Ru-PBS\';   %原文件路径
-savepath = 'E:\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3-C1_title\';   %新文件路径
+path = 'G:\MoS2\MoS2_0802\_Result\TIF_B3_B4_concentration\';   %原文件路径
+savepath =  'G:\MoS2\MoS2_0802\_Result\';   %新文件路径
 
-for ii = 1:31   %图片层数，可通过windows图片查看器知晓
-    I = double(imread([path, 'B1_A4_Cut_1_31.tif'], ii));   %读入文件的第i页
+for ii = 1:401   %图片层数，可通过windows图片查看器知晓
+    I = double(imread([path, 'B3_B4_Cut_1_31.tif'], ii));   %读入文件的第i页
     imwrite(I, [savepath, 'A4' num2str(ii, '%04d'), '.tif']);   %保存单层图片，以其在原文件中的顺序命名
 end
 
 %%
 video = VideoWriter('demo.avi'); %初始化一个avi文件
-video.FrameRate = 5;
+video.FrameRate = 24;
 open(video);
-for ii = 1:20  %图像序列个数
+for ii = 1:401  %图像序列个数
     frame = double(imread(fullfile(tifFolder, tifNames{ii})));
-    writeVideo(video,frame);
+    writeVideo(video, frame);
 end
 close(video);
 
