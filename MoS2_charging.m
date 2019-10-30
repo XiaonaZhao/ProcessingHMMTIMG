@@ -1,14 +1,15 @@
 function A = MoS2_charging(expName, tifPath, mask, begin, saveRoute)
+tic
 
 L = 1024;
 
 Value.tifFile = tifPath;
 Value.tifDir = dir(fullfile(Value.tifFile, '*.tiff'));
-Value.validDir = Value.tifDir(begin.frame:(begin.frame+length(Value.potential)));
+Value.validDir = Value.tifDir(begin.frame:(begin.frame + L -1));
 
 tif0 = double(imread(fullfile(Value.tifFile, Value.tifDir(1).name)));
-for ii = Value.begin.frame:(Value.begin.frame+L)
-    Value.tif{ii, 1}  = (double(imread(fullfile(Value.tifFile, Value.tifDir(ii).name))) - tif0)./tif0;
+for ii = begin.frame:(begin.frame + L -1)
+    Value.tif{(ii-begin.frame+1), 1}  = (double(imread(fullfile(Value.tifFile, Value.tifDir(ii).name))) - tif0)./tif0;
 end
 
 tif_A_peak = zeros(size(tif0, 1), size(tif0, 2));
@@ -19,7 +20,7 @@ for ii = 1:L
 end
 
 for ii = 1:size(tif0, 1)
-    for jj = 1:size(tif0, 2)
+    parfor jj = 1:size(tif0, 2)
         X = reshape(tif_3D(ii, jj, :), L, 1);
         Y = fft(X);
         P2 = abs(Y/L);
@@ -42,4 +43,5 @@ A = Value.Amplitude;
 cellpath = [saveRoute '\' expName '.mat']; 
 save(cellpath, 'Value', '-v7.3');
 
+toc
 end
