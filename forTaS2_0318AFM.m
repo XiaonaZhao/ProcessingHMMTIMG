@@ -209,12 +209,38 @@ hold off
 %%
 figure('color', 'w');
 hold on
-% plot(expTab(6).cycle, -expTab(6).ROImean, 'color', [0.6350, 0.0780, 0.1840]) % 50 mV/s
+plot(expTab(6).cycle, -expTab(6).ROImean, 'color', [0.6350, 0.0780, 0.1840]) % 50 mV/s
 plot(expTab(1).cycle, -expTab(1).ROImean, 'color', [0.8500, 0.3250, 0.0980]) % 100 mV/s
 plot(expTab(2).cycle, -expTab(2).ROImean, 'color', [0.9290, 0.6940, 0.1250]) % 200 mV/s
 plot(expTab(3).cycle, -expTab(3).ROImean, 'color', [0.4660, 0.6740, 0.1880]) % 300 mV/s
 plot(expTab(4).cycle, -expTab(4).ROImean, 'color', [0.3010, 0.7450, 0.9330]) % 400 mV/s
 plot(expTab(5).cycle, -expTab(5).ROImean, 'color', [0, 0.4470, 0.7410]) % 500 mV/s
+xlabel('Potential (V)');
+ylabel('Intensity (a.u.)');
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
+hold off
+%%
+figure('color', 'w');
+hold on
+plot(expTab(6).potential(3201:end,1), expTab(6).ROImean(3202:end,1), 'color', [0.6350, 0.0780, 0.1840]) % 50 mV/s
+plot(expTab(1).potential(1601:end,1), expTab(1).ROImean(1602:end,1), 'color', [0.8500, 0.3250, 0.0980]) % 100 mV/s
+plot(expTab(2).potential(801:end,1), expTab(2).ROImean(802:end,1), 'color', [0.9290, 0.6940, 0.1250]) % 200 mV/s
+plot(expTab(3).potential(535:end,1), expTab(3).ROImean(536:end,1), 'color', [0.4660, 0.6740, 0.1880]) % 300 mV/s
+plot(expTab(4).potential(401:end,1), expTab(4).ROImean(402:end,1), 'color', [0.3010, 0.7450, 0.9330]) % 400 mV/s
+plot(expTab(5).potential(321:end,1), expTab(5).ROImean(322:end,1), 'color', [0, 0.4470, 0.7410]) % 500 mV/s
+xlabel('Potential (V)');
+ylabel('Intensity (a.u.)');
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
+hold off
+%%
+figure('color', 'w');
+hold on
+plot(expTab(6).num, expTab(6).ROImean, 'color', [0.6350, 0.0780, 0.1840]) % 50 mV/s
+plot(expTab(1).num, expTab(1).ROImean, 'color', [0.8500, 0.3250, 0.0980]) % 100 mV/s
+plot(expTab(2).num, expTab(2).ROImean, 'color', [0.9290, 0.6940, 0.1250]) % 200 mV/s
+plot(expTab(3).num, expTab(3).ROImean, 'color', [0.4660, 0.6740, 0.1880]) % 300 mV/s
+plot(expTab(4).num, expTab(4).ROImean, 'color', [0.3010, 0.7450, 0.9330]) % 400 mV/s
+plot(expTab(5).num, expTab(5).ROImean, 'color', [0, 0.4470, 0.7410]) % 500 mV/s
 xlabel('Potential (V)');
 ylabel('Intensity (a.u.)');
 set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
@@ -241,13 +267,21 @@ fields = {'expName', 'zone', 'tifPath', 'Mask', 'begin', 'ScanRate', 'sampleRate
 expTab = cell2struct(exp, fields, 2);
 
 %%
-varMat = load('G:\TaS2\TaS2_1008_ITO\_Timer\B3_data.mat');
-Fs = expTab(8).sampleRate;
-begin = triggerTime(varMat.data, varMat.t, Fs);
-% Fs_SPR = 50; Fs_BF = 40;
-% begin = triggerTime_2Cam(varMat.data, varMat.t, Fs_SPR, Fs_BF);
-% begin = triggerTime_DC(varMat.data);
-expTab(8).begin = begin;
+prefix = ('E:\TaS2\20190501_TaS2_ITO\Timer\used\');
+d = sortObj(dir([prefix, '*.mat']));
+for ii = 1:size(expTab, 1)
+    varMat = load([prefix, d(ii).name]);
+    % varMat = load('G:\EDL\MoS2_20191212\_Timer\A1_data.mat');
+    % Fs = expTab(8).sampleRate;
+    Fs = 100;
+    begin = triggerTime_AC(varMat.data, varMat.t, Fs);
+%     begin = triggerTime_MoS2(varMat.data, varMat.t, Fs);
+    % Fs_SPR = 50; Fs_BF = 40;
+    % begin = triggerTime_2Cam(varMat.data, varMat.t, Fs_SPR, Fs_BF);
+    % begin = triggerTime_DC(varMat.data);
+    expTab(ii).begin = begin;
+    expTab(ii).data = varMat.data;
+end
 
 %% TaS2_20190627_ITO
 for ii = 1:size(expTab, 1)
@@ -261,19 +295,71 @@ for ii = 1:size(expTab, 1)
 %     expTab(ii).ROImean_lowp = lowp(expTab(ii).ROImean, 2, 12, 0.1, 20, 100);
     expTab(ii).ROImean_drifted = driftBaseline(expTab(ii).timeline, expTab(ii).ROImean);
 end
+
+%% 20190627_TaS2_ITO
+load('E:\TaS2\TaS2_20190627_ITO\_Result\expTab_p.mat')
+savePath = 'E:\TaS2\TaS2_20190627_ITO\_Result\PuzzlePics\';
 %%
+figure('color','white');
+
+for ii = 1:size(expTab_p, 1)
+    expName = expTab_p(ii).expName;
+    tifPath = expTab_p(ii).tifPath;
+    sROI = expTab_p(ii).sROI;
+    
+    tifDir = dir(fullfile(tifPath, '*.tiff'));
+    tif0 = double(imread(fullfile(tifPath, tifDir(potentialframe(1, ii)).name)));
+    
+    for jj = 2:size(potentialframe, 1)
+        tif  = double(imread(fullfile(tifPath, tifDir(potentialframe(jj, ii)).name)));
+        tif = tif - tif0;
+        
+        [row, col] = ImageJroiLocation(sROI);
+        img = tif((row(1):row(2)), (col(1):col(2)));
+        
+        localSums = imboxfilt(img, 11);
+        
+        imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
+        title([num2str(ii*2), ' mV/s ', num2str(jj-1)]);
+        %         c = cool;
+        %         c = JShine;
+        %         c = SublimeVivid;
+        c = parula;
+        c = flipud(c);
+        map = colormap(c);
+        colorbar;
+        set(gca, 'CLim', [-800 0]);
+        h = colorbar;
+        set(get(h, 'title'), 'string', 'Intensity (a.u.)', 'FontSize', 12);
+        pause(0.1);
+        saveas(gcf,[savePath, expName, '_', num2str(jj, '%02d'), '.tif']);
+    end
+    
+end
+
+
+%%
+cc = jet(10);
 figure('color', 'w');
-% hold on
+hold on
+for ii = 1:10
 % for ii = [2 3 4 6 7 8 9 11]
-ii = 2;
+% ii = 2;
 %     expTab(ii).redCurrent1 = 1/((expTab(ii).hole1site - expTab(ii).hole1Begin)/20);
 %     expTab(ii).redCurrent = expTab(ii).hole1value/((expTab(ii).hole1site - expTab(ii).hole1Begin)/20);
-    plot(expTab(ii).timeline, -expTab(ii).ROImean)
+
+%     plot(expTab(ii).cycle(1:end-1), expTab(ii).dROImean, 'color', cc(ii,:))
+    plot(expTab(ii).timeline, -expTab(ii).ROImean_drifted, 'color', cc(ii,:))
+%     plot(expTab(ii).potential(1602:3202), expTab(ii).dROImean(1602:3202), 'color', cc(ii,:))
+    
+%     plot(expTab(ii).cycle(1:end-1), -diff(smooth(expTab(ii).ROImean_lowp_drifted)), 'color', cc(ii,:))
 %     ii = ii + 1;
 % %     disp(['The ' num2str(ii) 'th progress is about ' num2str(expTab(ii).redCurrent1) '.']);
 %     disp(['The next progress is about ' num2str(ii) '.']);
-% end
-% hold off
+end
+hold off
+
+
 
 %%
 for ii = 1:10
@@ -284,7 +370,7 @@ end
 
 %% 20190506_TaS2_ITO
 
-prefix = ('G:\TaS2\TaS2_1008_ITO\_Result\mat_1\');
+prefix = ('G:\MoS2\MoS2_0919_0802\_Result\A_sequance\');
 d = sortObj(dir([prefix, '*.mat']));
 for ii = 1:size(expTab, 1)
 % for ii = [3 4]
@@ -431,3 +517,81 @@ for ii = 1:6
     shift(ii, 1) = (charge{ii, 1}(1,2) - charge{ii, 1}(2,2))./(charge{ii, 1}(1,1) - charge{ii, 1}(2,1));
     shift(ii, 2) = (charge{ii, 1}(3,2) - charge{ii, 1}(4,2))./(charge{ii, 1}(3,1) - charge{ii, 1}(4,1));
 end
+%% 20200525
+% load('G:\TaS2\20190501_TaS2_ITO\_Result_100_std\B_group.mat')
+% load('G:\TaS2\TaS2_20190627_ITO\_Result\expTab_B.mat')
+load('G:\TaS2\TaS2_1008_ITO\_Result\expTab.mat')
+
+hwait = waitbar(0, 'Please wait for the test >>>>>>>>');
+
+% CurrentCurve = cell(size(expTab, 1), 3);
+% for m = 1:size(expTab, 1)
+CurrentCurve = cell(8, 3);
+for m = 1:8
+    expName = expTab(m).expName;
+    tifPath = expTab(m).tifPath;
+    Mask = expTab(m).Mask;
+    begin = expTab(m).begin; 
+    saveRoute = expTab(m).saveRoute;
+    rate = expTab(m).ScanRate;
+    zone  = expTab(m).zone;
+    Fs = 100; % high scan rate group
+%     Fs = 20; % low scan rate group
+    
+    [potential, tifPage, curve] = TaS2_batch2020(expName, tifPath, Mask, begin, rate, saveRoute, zone, Fs);
+    CurrentCurve{m, 1} = potential;
+    CurrentCurve{m, 2} = tifPage;
+    CurrentCurve{m, 3} = curve;
+    
+    disp(['The latest progress is about ' num2str(m) '.']);
+    processBar(size(expTab, 1), m, hwait)
+    
+end
+delete(hwait);
+
+
+%%
+cc = jet(6);
+m = 0;
+figure('color', 'w');
+hold on 
+% for ii = [6 1 2 3 4 5]
+for ii = 1:6
+    m = m+1;
+    potential = CurrentCurve{ii, 1};
+    curve = CurrentCurve{ii, 3};
+%     plot(potential(size(potential,1)/2 : end), curve(size(potential,1)/2 : end), 'color', cc(m,:))
+%     plot(potential(1:size(potential,1)/2), curve(1:size(potential,1)/2), 'color', cc(m,:))
+    plot(potential, curve, 'color', cc(m,:))
+end
+
+m = 0;
+title([expName ' smoothed curve, Na_2SO_4 at different concentration'])
+xlabel('Potential (V)'); 
+ylabel('Current (a.u.)');
+% set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
+% set(gca, 'linewidth', 1.5)
+
+% figure('color', 'w');
+% hold on 
+% for ii = [6 1 2 3 4 5]
+%     m = m+1;
+%     potential = CurrentCurve{ii, 1};
+%     tifPage = CurrentCurve{ii, 2};
+%     plot(potential(size(potential,1)/2 : end), smooth(tifPage(size(potential,1)/2 : end),3), 'color', cc(m,:))
+% end
+% title([expName ' Optics2Electrics, Na_2SO_4 at different concentration'])
+% xlabel('Potential (V)'); 
+% ylabel('Current (a.u.)');
+% set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
+% set(gca, 'linewidth', 1.5)
+
+%%
+figure('color', 'white');
+ii = 1;
+x = (1:length(CurrentCurve{ii, 1}))';
+y = CurrentCurve{ii, 3};
+yy1 = smooth(x, y, 100, 'loess');
+plot(x, y, 'b.', x, yy1, 'r-');
+title(num2str(ii));
+
