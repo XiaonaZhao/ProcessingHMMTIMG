@@ -127,3 +127,74 @@ for ii = 1:1:foldernumber
     end
 end
 
+
+%% 20181123
+I0 = double(imread('G:\20181123_MoS2_CH18\A4_PBS_-0-3V_5s_MoS2_CH18-SH_HMMT200fps\A_4_1.tif'));
+I = double(imread('G:\20181123_MoS2_CH18\A4_PBS_-0-3V_5s_MoS2_CH18-SH_HMMT200fps\A_4_1000.tif'));
+I = I - I0;
+I = I(row1(1):row1(2), col1(1):col1(2));
+J0 = double(imread('G:\20181123_MoS2_CH18\B1_Ru_-0-3V_5s_MoS2_CH18-SH_HMMT200fps\B_1_1.tif'));
+J = double(imread('G:\20181123_MoS2_CH18\B1_Ru_-0-3V_5s_MoS2_CH18-SH_HMMT200fps\B_1_1000.tif'));
+J = J - J0;
+J = J(row1(1):row1(2), col1(1):col1(2));
+
+img = J - I;
+redCon_ii = (-img)*10/(-(filterCurve(600)-filterCurve(400)));
+redCon_ii = imboxfilt(redCon_ii, 11);
+redCon_ii(redCon_ii < 0) = 0;
+redCon_ii(redCon_ii > 10) = 10;
+% redCon_ii = abs(redCon_ii);
+    
+% figure('color', 'w');
+imshow(redCon_ii, 'DisplayRange',[], 'InitialMagnification', 'fit');
+colormap jet
+colorbar
+% impixelinfo
+
+%%
+h = drawrectangle;
+mask = createMask(h);
+intensity = zeros(L, 1);
+for ii = 1:L
+    intensity(ii, 1) = -ROImean(exp{ii, 1}, mask);
+end
+%%
+% [row, col] = ImageJroiLocation(sROI{1, 6});
+% savepath = 'G:\MoS2\MoS2_0802\_Result\TIF_A3_intenstiy_529x509\';
+% for ii = 400:800
+    ii = 600;
+    tif_ii = exp{ii, 1};
+%     tif_ii = exp{ii, 1} - exp{801, 1};
+%     tif_ii = tif_ii(row(1):row(2), col(1):col(2));
+    
+    if ii > 600
+        Voltage = -0.3 + ((ii-600)/100)*0.1;
+    else
+        Voltage = -0.1 - ((ii-400)/100)*0.1;
+    end
+    
+%     redCon_ii = (-tif_ii)*10/(-(filterCurve(600)-filterCurve(400)));
+    localSums = imboxfilt(tif_ii, 11);
+
+%     localSums = abs(localSums);
+    localSums(localSums > 0) = 0;
+%     localSums = abs(localSums);
+%     m = -300;
+%     localSums(localSums < m) = m;
+%     figure('color', 'w');
+    imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    title([num2str(Voltage), ' V']);
+    c = jet;
+    c = flipud(c);
+    map = colormap(c);
+%     colormap jet
+%     map=colormap('jet');
+    colorbar;
+%     impixelinfo
+    set(gca, 'CLim', [-1000 0]);
+    h=colorbar;
+    set(get(h,'title'),'string','Intensity (a.u.)', 'FontSize', 12);
+%     set(get(h,'title'),'string','\muC/cm^2', 'FontSize', 12);
+%     pause(0.05);
+%     saveas(gcf,[savepath, 'A3_' num2str(ii, '%04d'), '.tif']);
+% end

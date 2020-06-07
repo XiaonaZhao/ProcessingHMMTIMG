@@ -221,3 +221,20 @@ hold on
 plot(a1, d1, 'k'); plot(a2, d2, 'k');
 % plot(a3, N, value,'r');
 hold off
+%%
+
+% h=plot(a,b,'k-o','Markersize',7,'Markerface','white','linewidth',1.0);
+xlabel('Modulation frequency (Hz)','fontsize',12)
+ylabel('Amplitude (\DeltaT/T * 10^-^3)','fontsize',12)
+% Legend('a','b',0)
+% hh = findobj('tag','legend');   %|
+% set(hh,'fontsize',10)         %| 设置legend字号大小
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);        %| 设置图形线宽
+set(gca, 'linewidth', 1.5)      %| 设置图形外边框的线宽1.5
+% set(gca,'box','off')          %| 去图形外筐
+% %| 设置坐标轴字号12 ，斜体，正
+% set(gca,'fontsize',12,'fontweight','normal','fontangle','italic')
+% %| 设置x轴labal字体为斜体,黑体，字号12
+% set(get(gca,'xlabel'),'fontangle','italic','fontweight','bold', 'fontsize',12)
+% %| 设置y轴labal字体为斜体，非黑体，字号12
+% set(get(gca,'ylabel'),'fontangle','italic','fontweight','normal', 'fontsize',12)

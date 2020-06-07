@@ -12,10 +12,11 @@ expTab = cell2struct(exp, fields, 2);
 
 
 %%
-varMat = load('G:\EDL\Graphene_1012\_Timer\mat_D\D7_data.mat');
+varMat = load('G:\MoS2\MoS2_0919_0802\_Timer\B1_data.mat');
 Fs = 100;
-begin = triggerTime_MoS2(varMat.data, varMat.t, Fs);
+begin = triggerTime(varMat.data, varMat.t, Fs);
 expTab(7).begin = begin;
+expTab(7).data = varMat.data;
 
 %%
 for ii = 1:size(expTab,1)
@@ -30,26 +31,32 @@ end
 
 
 %%
-load('G:\EDL\Graphene_1012\_Result\expTab_D.mat')
+load('G:\MoS2\MoS2_0919_0802\_Result\expTab_All.mat')
 
 hwait = waitbar(0, 'Please wait for the test >>>>>>>>');
-for m = 1:size(expTab, 1)
+% for m = 1:size(expTab, 1)
+for m = 1:6
     tic
     
     expName = expTab(m).expName;
     tifPath = expTab(m).tifPath;
-    sROI = expTab(m).sROI;
-    % mask = expTab(m).roiMask;
+%     sROI = expTab(m).sROI;
+    mask = expTab(m).roiMask;
     begin = expTab(m).begin;
     saveRoute = expTab(m).saveRoute;
     % Fs = 100;
+    data = expTab(m).data;
+    voltage = data(:, 1);
     
-    % A = MoS2_charging(expName, tifPath, mask, begin, saveRoute);
-    expTab(m).ampl = edl(expName, tifPath, sROI, begin, saveRoute);
-    for nn = 1:length(expTab(m).ampl)
-        disp(['The ' num2str(nn) 'th amplitude of ' expName...
-            ' is about ' num2str(expTab(m).ampl(nn, 1)) '.']);
-    end
+    [expTab(m).Amp, expTab(m).Pha] = MoS2_charging(expName, tifPath, mask, begin, saveRoute, voltage);
+    disp(['The amplitude of ' expName ' is about ' num2str(expTab(m).Amp) '.']);
+    disp(['The phase of ' expName ' to V is about ' num2str((expTab(m).Pha)/pi) 'pi.']);
+    
+%     expTab(m).Amp = edl(expName, tifPath, sROI, begin, saveRoute);
+%     for nn = 1:length(expTab(m).Amp)
+%         disp(['The ' num2str(nn) 'th amplitude of ' expName...
+%             ' is about ' num2str(expTab(m).ampl(nn, 1)) '.']);
+%     end
     processBar(size(expTab, 1), m, hwait)
     
     toc

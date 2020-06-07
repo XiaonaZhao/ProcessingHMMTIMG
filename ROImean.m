@@ -3,4 +3,4 @@ function m = ROImean(img, mask)
 
 c = length(find(mask(:)~=0));
 img = img.*mask;
-m = -sum(img(:))/c;
+m = sum(img(:))/c;

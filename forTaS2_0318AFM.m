@@ -337,28 +337,57 @@ for ii = 1:size(expTab_p, 1)
     
 end
 
+%% for TPO ======== TaS2_ITO_0324 ==========
+load('E:\TaS2\20190324_TaS2_0318_ITO\result\expTab_TaS2_0324.mat')
+tifFile = 'E:\TaS2\20190324_TaS2_0318_ITO\B1_Na_-0-5V_110mVpp_0-2Hz_60-40_20s_Pike106fps';
+tifDir = dir(fullfile(tifFile, '*.tiff'));
+tif0 = double(imread(fullfile(tifFile, tifDir(1).name)));
+tif1 = double(imread(fullfile(tifFile, tifDir(237+1).name)));
+tif2 = double(imread(fullfile(tifFile, tifDir(392+1).name)));
+tif3 = double(imread(fullfile(tifFile, tifDir(2814+1).name)));
+tif1 = (tif1-tif0)./tif0;
+tif2 = (tif2-tif0)./tif0;
+tif3 = (tif3-tif0)./tif0;
+img1 = tif1((row(1):row(2)), (col(1):col(2)));
+img2 = tif2((row(1):row(2)), (col(1):col(2)));
+img3 = tif3((row(1):row(2)), (col(1):col(2)));
+
+figure('color', 'w');
+localSums = imboxfilt(img3, 11);
+imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
+c = parula;
+c = flipud(c);
+map = colormap(c);
+colorbar;
+set(gca, 'CLim', [-0.08 0]);
+h = colorbar;
+set(get(h, 'title'), 'string', 'Intensity (a.u.)', 'FontSize', 12);
+
 
 %%
 cc = jet(10);
 figure('color', 'w');
 hold on
-for ii = 1:10
-% for ii = [2 3 4 6 7 8 9 11]
+% for ii = 1:10
+for ii = [2 4 6 8 10]
 % ii = 2;
 %     expTab(ii).redCurrent1 = 1/((expTab(ii).hole1site - expTab(ii).hole1Begin)/20);
 %     expTab(ii).redCurrent = expTab(ii).hole1value/((expTab(ii).hole1site - expTab(ii).hole1Begin)/20);
 
 %     plot(expTab(ii).cycle(1:end-1), expTab(ii).dROImean, 'color', cc(ii,:))
-    plot(expTab(ii).timeline, -expTab(ii).ROImean_drifted, 'color', cc(ii,:))
+%     plot(expTab(ii).timeline, -expTab(ii).ROImean_drifted, 'color', cc(ii,:))
 %     plot(expTab(ii).potential(1602:3202), expTab(ii).dROImean(1602:3202), 'color', cc(ii,:))
     
-%     plot(expTab(ii).cycle(1:end-1), -diff(smooth(expTab(ii).ROImean_lowp_drifted)), 'color', cc(ii,:))
+    y = lowp(expTab(ii).ROImean_lowp_drifted, 2, 12, 0.1, 20, 100);
+    plot(expTab(ii).cycle(1:end), -smooth(y, 50)/10000, 'color', cc(ii,:))
+%     plot(expTab(ii).cycle(1:end), -expTab(ii).ROImean_lowp_drifted, 'color', cc(ii,:))
 %     ii = ii + 1;
 % %     disp(['The ' num2str(ii) 'th progress is about ' num2str(expTab(ii).redCurrent1) '.']);
 %     disp(['The next progress is about ' num2str(ii) '.']);
 end
 hold off
-
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
+set(gca, 'linewidth', 1.5) 
 
 
 %%
@@ -370,7 +399,7 @@ end
 
 %% 20190506_TaS2_ITO
 
-prefix = ('G:\MoS2\MoS2_0919_0802\_Result\A_sequance\');
+prefix = ('E:\TaS2\TaS2_1008_ITO\_Result\Pics\fig2020\');
 d = sortObj(dir([prefix, '*.mat']));
 for ii = 1:size(expTab, 1)
 % for ii = [3 4]
@@ -379,11 +408,12 @@ for ii = 1:size(expTab, 1)
 %     expTab(ii).line = (0:(-0.8/m):-0.8)';
 %     expTab(ii).dIntensity = Value.outside(:, 1:2);
 %     expTab(ii).potential = Value.potential;
-    expTab(ii).ROImean = Value.ROImean;
-    expTab(ii).dROImean = Value.dROImean;
+%     expTab(ii).ROImean = Value.ROImean;
+%     expTab(ii).dROImean = Value.dROImean;
+    expTab(ii).tifPage = Value.tifPage;
     
-    expTab(ii).cycle = (0:2/(length(Value.dROImean)):2)';
-    expTab(ii).timeline = (1:length(Value.ROImean))';
+%     expTab(ii).cycle = (0:2/(length(Value.dROImean)):2)';
+%     expTab(ii).timeline = (1:length(Value.ROImean))';
 end
 
 
@@ -550,22 +580,22 @@ end
 delete(hwait);
 
 
-%%
-cc = jet(6);
-m = 0;
+%% for 20190627_ITO
+cc = jet(10);
+% m = 0;
 figure('color', 'w');
 hold on 
 % for ii = [6 1 2 3 4 5]
-for ii = 1:6
-    m = m+1;
+for ii = 1:10
+%     m = m+1;
     potential = CurrentCurve{ii, 1};
     curve = CurrentCurve{ii, 3};
 %     plot(potential(size(potential,1)/2 : end), curve(size(potential,1)/2 : end), 'color', cc(m,:))
 %     plot(potential(1:size(potential,1)/2), curve(1:size(potential,1)/2), 'color', cc(m,:))
-    plot(potential, curve, 'color', cc(m,:))
+    plot(potential, curve, 'color', cc(ii,:))
 end
 
-m = 0;
+% m = 0;
 title([expName ' smoothed curve, Na_2SO_4 at different concentration'])
 xlabel('Potential (V)'); 
 ylabel('Current (a.u.)');
@@ -587,11 +617,133 @@ ylabel('Current (a.u.)');
 % set(gca, 'linewidth', 1.5)
 
 %%
+cc = jet(10);
 figure('color', 'white');
-ii = 1;
-x = (1:length(CurrentCurve{ii, 1}))';
-y = CurrentCurve{ii, 3};
-yy1 = smooth(x, y, 100, 'loess');
-plot(x, y, 'b.', x, yy1, 'r-');
-title(num2str(ii));
+hold on
+% for ii = 1:size(Current, 1)
+for ii = [2 4 6 8 10]
+    m = length(Current(ii).potential);
+    x = (1:ceil(m/2))';
+    y = Current(ii).Current(1:ceil(m/2));
+%     y = lowp(y, 2, 12, 0.1, 20, 100);
+    jj = Current(ii).Span;
+    yy1 = Current(ii).alpha * smooth(x, y, jj, 'loess');
+%     plot(Current(ii).potential(1: ceil(m/2)), yy1(1: ceil(m/2)), 'color', cc(ii, :))
+    % plot(Current(ii).potential(ceil(m/2):end), yy1(ceil(m/2):end), 'color', cc(ii, :))
+    
+    x = (ceil(m/2)+1:m-10)';
+    y = Current(ii).Current(ceil(m/2)+1:m-10);
+    jj = Current(ii).span;
+    yy2 = smooth(x, y, jj, 'loess');
+%     plot(Current(ii).potential(ceil(m/2)+1:end-10), yy2, 'color', cc(ii, :))
+    
+    yy = [yy1; yy2];
+    plot(Current(ii).potential(1:m-10), yy, 'color', cc(ii, :))
+    
+    Current(ii).Current_smoothed = yy;
+    Current(ii).re = min(yy);
+    Current(ii).ox = max(yy);
+%     title([num2str(ii), ' smooth span ', num2str(jj)]);
+end
+xlim([-1.1 -0.6])
+xlabel('Potential (V vs. Ag wire)')
+ylabel('Current density (a.u.)')
+legend
+hold off
 
+
+%%
+cc = jet(10);
+figure('color', 'white');
+hold on
+% for ii = 1:size(Current, 1)
+for ii = [6 1 2 3 4 5]
+    m = length(Current(ii).potential);
+    x = (1:ceil(m/2))';
+%     y = Current(ii).Current(1:ceil(m/2));
+     y0 = lowp(expTab(ii).ROImean_lowp_drifted, 2, 12, 0.1, 20, 100);
+     y = -smooth(y0, 50)/1000;
+     y = y(1:ceil(m/2));
+%     y = lowp(y, 2, 12, 0.1, 20, 100);
+    jj = Current(ii).Span;
+    yy1 = Current(ii).alpha * smooth(x, y, jj, 'loess');
+%     plot(Current(ii).potential(1: ceil(m/2)), yy1(1: ceil(m/2)), 'color', cc(ii, :))
+    % plot(Current(ii).potential(ceil(m/2):end), yy1(ceil(m/2):end), 'color', cc(ii, :))
+    
+    x = (ceil(m/2)+1:m-10)';
+    y = Current(ii).Current(ceil(m/2)+1:m-10);
+    jj = Current(ii).span;
+    yy2 = smooth(x, y, jj, 'loess');
+%     plot(Current(ii).potential(ceil(m/2)+1:end-10), yy2, 'color', cc(ii, :))
+    
+    yy = [yy1; yy2];
+    plot(Current(ii).potential(1:m-10), yy, 'color', cc(ii, :))
+    
+    Current(ii).Current_smoothed = yy;
+%     title([num2str(ii), ' smooth span ', num2str(jj)]);
+end
+xlim([-1.1 -0.6])
+xlabel('Potential (V vs. Ag wire)')
+ylabel('Current density (a.u.)')
+legend
+hold off
+
+%% for 20190501
+cc = parula_linear(6);
+% Scanrate = [50; 100; 200; 300; 400; 500];
+concentration = [50; 100; 150; 200; 250; 300];
+Ipeak_re = zeros(6, 1);
+Ipeak_ox = zeros(6, 1);
+figure('color', 'white');
+hold on
+nn = 0;
+% ii = 1;
+for ii = 1:6
+    nn = nn + 1;
+    m = length(expTab(ii).potential);
+%     x = (ceil(m/2)-1 : m)';
+    x = (ceil(m/2)+1 : m)'; % for concentration in 20191008
+    y = lowp(expTab(ii).tifPage, 2, 36, 0.1, 20, 100);
+%     y = -smooth(y0, 50);
+%     y = y(ceil(m/2)-1 : m); % COncentration has selected the last cycle.
+%     jj = 1;
+    jj = expTab(ii).Span;
+    yy1 = smooth(x, y, jj, 'loess');
+    %     plot(Current(ii).potential(1: ceil(m/2)), yy1(1: ceil(m/2)), 'color', cc(ii, :))
+    % plot(Current(ii).potential(ceil(m/2):end), yy1(ceil(m/2):end), 'color', cc(ii, :))
+    
+%     plot(expTab(ii).potential(ceil(m/2)-1 : m), yy1, 'color', cc(nn, :))
+    plot(expTab(ii).potential(ceil(m/2)+1 : m), yy1, 'color', cc(nn, :))% COncentration has selected the last cycle.
+    
+    Ipeak_re(nn, 1) = min(yy1);
+    Ipeak_ox(nn, 1) = max(yy1);
+    
+end
+xlim([-0.8 0])
+xlabel('Potential (V vs. Ag/AgCl)')
+ylabel('Current density (a.u.)')
+box on
+legend
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
+set(gca, 'linewidth', 2) 
+hold off
+
+
+% f_re = fit(Scanrate, Ipeak_re, 'poly1');
+% f_ox = fit(Scanrate, Ipeak_ox, 'poly1');
+f_re = fit(concentration, Ipeak_re, 'poly1');
+f_ox = fit(concentration, Ipeak_ox, 'poly1');
+
+figure('color', 'white');
+hold on
+% plot(f_ox, Scanrate, Ipeak_ox, '^');
+% plot(f_re, Scanrate, Ipeak_re, 'v');
+plot(f_ox, concentration, Ipeak_ox, '^');
+plot(f_re, concentration, Ipeak_re, 'v');
+box on
+xlabel('Scan rate (mV/s)')
+ylabel('I_p (a.u.)')
+legend
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
+set(gca, 'linewidth', 2) 
+hold off

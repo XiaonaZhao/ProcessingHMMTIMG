@@ -65,3 +65,49 @@ figure('color', 'w')
 imshow(I6, 'DisplayRange', [], 'InitialMagnification', 'fit');
 colormap jet
 colorbar
+%%
+[cstrFilenames, cstrPathname] = uigetfile(...
+    {'*.*',  'All Files (*.*)';...
+    '*.zip',  'Zip-files (*.zip)';...
+    '*.roi',  'ROI (*.roi)'...
+    },'Pick a .roi imageJ file');
+[sROI] = ReadImageJROI(fullfile(cstrPathname, cstrFilenames));
+ROI = sROI{1, 1};
+[row, col] = ImageJroiLocation(ROI);
+
+%%
+L = 1024;
+prefix = ('G:\MoS2\MoS2_0919_0802\_Result\A_sequance\');
+d = sortObj(dir([prefix, '*.mat']));
+intensity = zeros(L, 6);
+% for jj = 1:6
+jj = 4;
+    load([prefix, d(jj).name]);
+    mask = ~imread(expTab(jj).roiMask);
+    tif0 = double(imread(fullfile(Value.tifFile, Value.tifDir(1).name)));
+    exp = cell(L, 1);
+    
+    for ii = 1:L
+        temp = double(imread(fullfile(Value.tifFile, Value.validDir(ii).name)));
+        exp{ii, 1} = (temp - tif0)./tif0;
+%         intensity(ii,jj) = ROImean(temp, mask);
+        %     tif{ii, 1} = temp(row(1):row(2), col(1):col(2));
+    end
+% end
+%%
+Fs = 100; % normal hamamatsu camera
+for ii = [1 2 4 5 6]
+    Y = intensity(:, ii);
+    [f1(:, ii), P1(:, ii)] = fft_P1(Y, Fs);
+%     figure('color','w');
+    plot(f1(:, ii), 1000*P1(:, ii));
+    hold on
+    xlim([0, 50]);
+    ylim([0 8]);
+    xlabel('f (Hz)','fontsize',12)
+    ylabel('|P(f)|','fontsize',12)
+%     l = num2str(ii);
+%     legend(l)
+    % hold off
+end
+hold off
