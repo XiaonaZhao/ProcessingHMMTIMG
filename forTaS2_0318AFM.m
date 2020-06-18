@@ -278,7 +278,7 @@ for ii = 1:size(expTab, 1)
 %     begin = triggerTime_MoS2(varMat.data, varMat.t, Fs);
     % Fs_SPR = 50; Fs_BF = 40;
     % begin = triggerTime_2Cam(varMat.data, varMat.t, Fs_SPR, Fs_BF);
-    % begin = triggerTime_DC(varMat.data);
+    % begin = triggerTime_DC(varMat.data, Fs);
     expTab(ii).begin = begin;
     expTab(ii).data = varMat.data;
 end
@@ -339,11 +339,18 @@ end
 
 %% for TPO ======== TaS2_ITO_0324 ==========
 load('E:\TaS2\20190324_TaS2_0318_ITO\result\expTab_TaS2_0324.mat')
+% [cstrFilenames, cstrPathname] = uigetfile(...
+%     {'*.*',  'All Files (*.*)';...
+%     '*.zip',  'Zip-files (*.zip)';...
+%     '*.roi',  'ROI (*.roi)'...
+%     },'Pick a .roi imageJ file');
+% [sROI] = ReadImageJROI(fullfile(cstrPathname, cstrFilenames));
+[row, col] = ImageJroiLocation(sROI{1});
 tifFile = 'E:\TaS2\20190324_TaS2_0318_ITO\B1_Na_-0-5V_110mVpp_0-2Hz_60-40_20s_Pike106fps';
 tifDir = dir(fullfile(tifFile, '*.tiff'));
 tif0 = double(imread(fullfile(tifFile, tifDir(1).name)));
 tif1 = double(imread(fullfile(tifFile, tifDir(237+1).name)));
-tif2 = double(imread(fullfile(tifFile, tifDir(392+1).name)));
+tif2 = double(imread(fullfile(tifFile, tifDir(246+1).name))); % primer = 392;
 tif3 = double(imread(fullfile(tifFile, tifDir(2814+1).name)));
 tif1 = (tif1-tif0)./tif0;
 tif2 = (tif2-tif0)./tif0;
@@ -353,13 +360,13 @@ img2 = tif2((row(1):row(2)), (col(1):col(2)));
 img3 = tif3((row(1):row(2)), (col(1):col(2)));
 
 figure('color', 'w');
-localSums = imboxfilt(img3, 11);
+localSums = imboxfilt(img1, 11);
 imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
 c = parula;
 c = flipud(c);
 map = colormap(c);
 colorbar;
-set(gca, 'CLim', [-0.08 0]);
+set(gca, 'CLim', [-0.1 0]);
 h = colorbar;
 set(get(h, 'title'), 'string', 'Intensity (a.u.)', 'FontSize', 12);
 
@@ -690,8 +697,9 @@ hold off
 
 %% for 20190501
 cc = parula_linear(6);
+Scanrate = [2; 4; 6; 8; 10];
 % Scanrate = [50; 100; 200; 300; 400; 500];
-concentration = [50; 100; 150; 200; 250; 300];
+% concentration = [50; 100; 150; 200; 250; 300];
 Ipeak_re = zeros(6, 1);
 Ipeak_ox = zeros(6, 1);
 figure('color', 'white');
@@ -728,18 +736,18 @@ set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
 set(gca, 'linewidth', 2) 
 hold off
 
-
-% f_re = fit(Scanrate, Ipeak_re, 'poly1');
-% f_ox = fit(Scanrate, Ipeak_ox, 'poly1');
-f_re = fit(concentration, Ipeak_re, 'poly1');
-f_ox = fit(concentration, Ipeak_ox, 'poly1');
+%%
+f_re = fit(Scanrate, Ipeak_re, 'poly1');
+f_ox = fit(Scanrate, Ipeak_ox, 'poly1');
+% f_re = fit(concentration, Ipeak_re, 'poly1');
+% f_ox = fit(concentration, Ipeak_ox, 'poly1');
 
 figure('color', 'white');
 hold on
-% plot(f_ox, Scanrate, Ipeak_ox, '^');
-% plot(f_re, Scanrate, Ipeak_re, 'v');
-plot(f_ox, concentration, Ipeak_ox, '^');
-plot(f_re, concentration, Ipeak_re, 'v');
+plot(f_ox, Scanrate, Ipeak_ox, '^');
+plot(f_re, Scanrate, Ipeak_re, 'v');
+% plot(f_ox, concentration, Ipeak_ox, '^');
+% plot(f_re, concentration, Ipeak_re, 'v');
 box on
 xlabel('Scan rate (mV/s)')
 ylabel('I_p (a.u.)')
