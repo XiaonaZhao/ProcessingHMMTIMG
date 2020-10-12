@@ -10,8 +10,8 @@ Value.tifFile = tifPath;
 Value.tifDir = dir(fullfile(Value.tifFile, '*.tiff'));
 
 % Potential and ScanRate
-% potential = potentialLine(rate, Fs, 0, -0.8); % 2c high scan rate
-potential = potentialLine(rate, Fs, -0.6, -1.1); % 1c low scan rate
+potential = potentialLine(rate, Fs, 0, -0.8); % 2c high scan rate
+% potential = potentialLine(rate, Fs, -0.6, -1.1); % 1c low scan rate
 Value.potential = potential;
 
 % Valid image sequence
