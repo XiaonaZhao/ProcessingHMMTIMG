@@ -6,17 +6,32 @@
 % LOCATION.
 
 %% 
-exp = cell(7, 7);
-fields = {'expName', 'tifPath', 'sROI', 'begin', 'Frequency', 'sampleRate', 'saveRoute'};
+exp = cell(12, 8);
+fields = {'expName', 'tifPath', 'Mask', 'zone', 'begin', 'Frequency', 'sampleRate', 'saveRoute'};
 expTab = cell2struct(exp, fields, 2);
 
 
 %%
-varMat = load('G:\MoS2\MoS2_0919_0802\_Timer\B1_data.mat');
+prefix = ('H:\ZetaPotential\Graphene_20200918_100x\_Timer\');
+d = sortObj(dir([prefix, '*.mat']));
 Fs = 100;
-begin = triggerTime(varMat.data, varMat.t, Fs);
-expTab(7).begin = begin;
-expTab(7).data = varMat.data;
+for ii = 1:size(expTab, 1)
+    varMat = load([prefix, d(ii).name]);
+    % varMat = load('G:\EDL\EDL_BareAu_20200813\_Timer\A1_data.mat');
+    
+    begin = triggerTime_PEIM(varMat.data, varMat.t, Fs);
+    expTab(ii).begin = begin;
+    expTab(ii).data = varMat.data;
+    disp([prefix, d(ii).name]);
+end
+
+%%
+prefix = ('H:\ZetaPotential\Graphene_20200918_100x\_Result\sROI\');
+d = sortObj(dir([prefix, '*.zip']));
+for ii = 1:size(expTab,1)
+    [expTab(ii).sROI] = ReadImageJROI([prefix, d(ii).name]);
+    disp([prefix, d(ii).name]);
+end
 
 %%
 for ii = 1:size(expTab,1)
@@ -28,6 +43,16 @@ for ii = 1:size(expTab,1)
     [expTab(ii).sROI] = ReadImageJROI(fullfile(cstrPathname, cstrFilenames));
     disp(['The latest one was ' num2str(ii) '.']);
 end
+%% 20200726 for 20190514
+ii = 356;
+imshow(imboxfilt(tif{ii}, 9), 'DisplayRange', [], 'InitialMagnification', 'fit');
+c = parula;
+c = flipud(c);
+map = colormap(c);
+colorbar;
+set(gca, 'CLim', [-0.05 0], 'FontSize', 14);
+% h = colorbar;
+% set(get(h, 'title'), 'string', '\DeltaI/I', 'FontSize', 14);
 
 
 %%
@@ -40,15 +65,15 @@ for m = 1:6
     
     expName = expTab(m).expName;
     tifPath = expTab(m).tifPath;
-%     sROI = expTab(m).sROI;
-    mask = expTab(m).roiMask;
+    sROI = expTab(m).sROI;
+%     mask = expTab(m).roiMask;
     begin = expTab(m).begin;
     saveRoute = expTab(m).saveRoute;
     % Fs = 100;
     data = expTab(m).data;
-    voltage = data(:, 1);
+    voltage = data(:, 2);
     
-    [expTab(m).Amp, expTab(m).Pha] = MoS2_charging(expName, tifPath, mask, begin, saveRoute, voltage);
+    [expTab(m).tif_Amp, expTab(m).tif_Ph, expTab(m).Amp, expTab(m).Phase] = MoS2_charging(expName, tifPath, sROI, begin, saveRoute, voltage);
     disp(['The amplitude of ' expName ' is about ' num2str(expTab(m).Amp) '.']);
     disp(['The phase of ' expName ' to V is about ' num2str((expTab(m).Pha)/pi) 'pi.']);
     
@@ -511,7 +536,6 @@ disp(['Running time: ',num2str(toc)]);
 
 MailToMe('nona1588@outlook.com');
 
-
 %% Total the experiment of Ru(III)
 tifFile = 'E:\20181116_MoS2_CH18-Au\D3_Z1_Ru_PBS_0 -0-4V_0-1VpS_2c_HMMT_200fps';
 [Value.tifFolder, Value.tifNames] = ReadTifFileNames(tifFile);
@@ -539,4 +563,21 @@ end
 D3_C1.sampleArea = cell(81, 1);
 for ii = 1:81
     D3_C1.sampleArea{ii} = Value.sampleArea{ii, 2} - C1.sampleArea{ii, 2};
+end
+
+
+
+%% for EDL_BareAu_20200814
+L = 1024;
+for ii = 1:size(expTab, 1)
+    intensity = expTab(ii).intensity;
+    X = intensity(expTab(ii).begin.frame:expTab(ii).begin.frame+1024);
+    Y = fft(X);
+    P2 = abs(Y/L);
+    expTab(ii).Amp1 = max(2*P2(2:end-1));
+    
+    X = intensity(expTab(ii).begin.frame+1024:expTab(ii).begin.frame+2048);
+    Y = fft(X);
+    P2 = abs(Y/L);
+    expTab(ii).Amp2 = max(2*P2(2:end-1));
 end
