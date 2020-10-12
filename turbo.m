@@ -1,9 +1,14 @@
 function map = turbo(m)
+
 %TURBO   Turbo colormap.
 %   TURBO(M) returns an M-by-3 matrix containing the turbo colormap, a
 %   variant of the jet colormap that is more perceptually uniform.
 %
 %   See also JET, COLORMAP.
+
+% Daniel Fortunato (2020). turbo
+% (https://www.mathworks.com/matlabcentral/fileexchange/74662-turbo),
+% MATLAB Central File Exchange. Retrieved August 10, 2020.
 
 if nargin < 1
    f = get(groot,'CurrentFigure');
@@ -33,7 +38,7 @@ values = [
      0.24830, 0.24143, 0.61286;
      0.25107, 0.25237, 0.63374;
      0.25369, 0.26327, 0.65406;
-     0.25618, 0.27412, 0.67381;
+     0.25618, 0.27412, 0.67381; %%
      0.25853, 0.28492, 0.69300;
      0.26074, 0.29568, 0.71162;
      0.26280, 0.30639, 0.72968;
@@ -234,7 +239,7 @@ values = [
      0.87422, 0.24526, 0.03297;
      0.86760, 0.23730, 0.03082;
      0.86079, 0.22945, 0.02875;
-     0.85380, 0.22170, 0.02677;
+     0.85380, 0.22170, 0.02677; %%
      0.84662, 0.21407, 0.02487;
      0.83926, 0.20654, 0.02305;
      0.83172, 0.19912, 0.02131;
