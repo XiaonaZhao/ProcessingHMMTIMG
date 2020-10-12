@@ -29,7 +29,7 @@ Intensity = data_fit;
 
 Current = zeros(imgNum-1,1);
 Sum_new = zeros(imgNum-2,1);
-for i = 3 : imgNum
+for i = 3:imgNum
     Sum_new(i) = sum(real(Current(1:i-2)'./Sub(i-2,1:i-2))).*(DeltaT(i));
     Current(i-1) = (Intensity(i-1)./Constant - Sum_new(i))./abs(DeltaT(i-1)).*((Time(i)-Time(i-1)).^(0.5));
 end
