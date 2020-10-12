@@ -115,7 +115,7 @@ for ii = 1:L
     tif = double(imread(fullfile(Value(2).tifPath, Value(2).tifName{ii+Value(2).begin-1})));
     tif2 = tif(row2(1):row2(2), col2(1):col2(2))- tif02;
     
-    exp{ii, 1} = tif1 - 3*tif2;
+    exp{ii, 1}.AverageA4= tif1 - 3*tif2;
 end
 
 
@@ -595,3 +595,62 @@ for n = 1:row
     mask = imread(fullfile(maskFolder, maskNames{n}));
     s(n) = calculateROIintensity(img, mask);
 end
+%%
+RuII = 10*ones(401, 1)./(exp((potential+0.11*ones(401, 1))/(25.693e-3))+ones(401, 1));
+
+%% Retract data from figure
+h = findobj(gca, 'Type', 'line');
+x = get(h, 'Xdata');
+y = get(h, 'Ydata');
+
+Potential_modified_Au = x{3};
+Potential_SPR_MoS2 = x{2};
+Potential_GC_MoS2 = x{1};
+
+I2C_modified_Au = y{3};
+I2C_SPR_MoS2 = y{2};
+Current_GC_MoS2 = y{1};
+%% SPR vs CHI
+figure('color', 'w');
+
+box on
+hold on
+yyaxis left
+plot(Potential_modified_Au, I2C_modified_Au)
+plot(Potential_SPR_MoS2, I2C_SPR_MoS2, 'o')
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 3); 
+set(gca, 'linewidth', 3, 'FontSize', 14, 'FontWeight', 'bold')
+xlabel('Potential (V vs. Ag/AgCl)'); 
+ylabel('Current density (a.u.)');
+yyaxis right
+plot(Potential_GC_MoS2, Current_GC_MoS2*10^(-4))
+set(findobj(get(gca, 'Children'), 'LineWidth', 0.5), 'LineWidth', 3); 
+set(gca, 'linewidth', 3, 'FontSize', 14, 'FontWeight', 'bold')
+ylabel('Current (A)');
+hold off
+%% monolayer_21-821
+figure('color', 'w');
+skip = 20;
+for ii = [1 4 6]
+    X = x{7-ii};
+    Y = smooth(y{7-ii}, skip);
+    plot(X(1:skip:end), Y(1:skip:end)/14000, '-')
+    hold on
+end
+xlim([21 821])
+hold off
+%% for 20190513
+hold off
+figure('color', 'w');
+plot(potential, smooth(Au/23000, 5)) % bg
+a2 = intensity2(40:440)/23000; % MoS2
+c2 = polyfit(potential,a2,1); d2 = polyval(c2, potential);
+hold on
+plot(potential, smooth(a2, 10)) % may need a fft filter
+plot(potential, d2, '--')
+xlabel('Potential (V vs. Ag/AgCl)'); 
+ylabel('\DeltaI/I');
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 1);
+set(gca, 'linewidth', 1, 'FontSize', 16)
+ylim([-0.06 0.01])
+legend
