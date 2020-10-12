@@ -283,6 +283,8 @@ for ii = 1:size(expTab, 1)
     expTab(ii).data = varMat.data;
 end
 
+
+
 %% TaS2_20190627_ITO
 for ii = 1:size(expTab, 1)
     [val, num] = min(expTab(ii).dROImean);
@@ -297,7 +299,7 @@ for ii = 1:size(expTab, 1)
 end
 
 %% 20190627_TaS2_ITO
-load('E:\TaS2\TaS2_20190627_ITO\_Result\expTab_p.mat')
+% load('E:\TaS2\TaS2_20190627_ITO\_Result\expTab_p.mat')
 savePath = 'E:\TaS2\TaS2_20190627_ITO\_Result\PuzzlePics\';
 %%
 figure('color','white');
@@ -310,7 +312,7 @@ for ii = 1:size(expTab_p, 1)
     tifDir = dir(fullfile(tifPath, '*.tiff'));
     tif0 = double(imread(fullfile(tifPath, tifDir(potentialframe(1, ii)).name)));
     
-    for jj = 2:size(potentialframe, 1)
+    for jj = 2:size(potentialframe, 1) % for tif0 is the first
         tif  = double(imread(fullfile(tifPath, tifDir(potentialframe(jj, ii)).name)));
         tif = tif - tif0;
         
@@ -348,10 +350,11 @@ load('E:\TaS2\20190324_TaS2_0318_ITO\result\expTab_TaS2_0324.mat')
 [row, col] = ImageJroiLocation(sROI{1});
 tifFile = 'E:\TaS2\20190324_TaS2_0318_ITO\B1_Na_-0-5V_110mVpp_0-2Hz_60-40_20s_Pike106fps';
 tifDir = dir(fullfile(tifFile, '*.tiff'));
-tif0 = double(imread(fullfile(tifFile, tifDir(1).name)));
+tif0 = double(imread(fullfile(tifFile, tifDir(236).name)));
 tif1 = double(imread(fullfile(tifFile, tifDir(237+1).name)));
-tif2 = double(imread(fullfile(tifFile, tifDir(246+1).name))); % primer = 392;
-tif3 = double(imread(fullfile(tifFile, tifDir(2814+1).name)));
+tif2 = double(imread(fullfile(tifFile, tifDir(261+1).name))); % primer = 392;
+tif3 = double(imread(fullfile(tifFile, tifDir(392+1).name)));
+% tif1 = 237; tif2 = 246; tif3 = 2814;
 tif1 = (tif1-tif0)./tif0;
 tif2 = (tif2-tif0)./tif0;
 tif3 = (tif3-tif0)./tif0;
@@ -359,8 +362,8 @@ img1 = tif1((row(1):row(2)), (col(1):col(2)));
 img2 = tif2((row(1):row(2)), (col(1):col(2)));
 img3 = tif3((row(1):row(2)), (col(1):col(2)));
 
-figure('color', 'w');
-localSums = imboxfilt(img1, 11);
+% figure('color', 'w');
+localSums = imboxfilt(img2, 7);
 imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
 c = parula;
 c = flipud(c);
@@ -735,6 +738,34 @@ legend
 set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
 set(gca, 'linewidth', 2) 
 hold off
+%% for 20190318 the WideField&CV
+
+% y = lowp(tifPage, 2, 11, 0.1, 20, 100);
+% x = (y(1:1601)+y(1601:3201))/2;
+y = Value.outside{1, 1};
+y1 = (y(:, 1)+y(:, 3))/2;
+y1 = y1(2401:3200);
+y2 = (y(:, 2)+y(:, 4))/2;
+y2 = y2(1601:2400);
+y = [y2; y1];
+
+figure('color', 'w');
+hold on
+plot(.Valuepotential(1:1600), y) 
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
+set(gca, 'linewidth', 2, 'FontSize', 14)
+xlabel('Potential (V vs. Ag/AgCl)'); 
+ylabel('Current density (a.u.)');
+
+yyaxis right
+plot(potential, current) % from the excel file of CHI A9.
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 2);
+set(gca, 'linewidth', 2, 'FontSize', 14)
+ylabel('Current (A)');
+
+legend on
+hold off
+
 
 %%
 f_re = fit(Scanrate, Ipeak_re, 'poly1');
