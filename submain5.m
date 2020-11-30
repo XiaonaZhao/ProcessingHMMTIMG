@@ -5,7 +5,7 @@ for ii = 1:81
     exp{ii, 1} = D3_C1.sampleArea{ii};
 end
 %%
-load('G:\MoS2\MoS2_0802\_Result_f\matlab_drifted_fake.mat') % monolayer
+load('E:\MoS2\MoS2_0802\_Result_f\matlab_drifted_fake.mat') % monolayer
 %%
 % figure('color', 'w');
 ii = 60;
@@ -137,3 +137,115 @@ ylim([-1.5 1.5])
 ylabel('Current density (x 10^-^3 A/cm^2)')
 set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 1);
 set(gca, 'linewidth', 1, 'FontSize', 16)
+%% C1vsD3_drifted_subtract_1
+x = (0:0.01:16)';  % 这里手动在potential的最后一行加上0，使其长度由1600变为1601。
+xq = (0:0.005:16)'; 
+figure('color', 'w');
+potentialq1 = interp1(x,potential,xq);
+plot(x, potential,'o', xq, potentialq1,':.'); % for examination
+ylabel('Potential (V vs. Ag/AgCl)');
+xlabel('Time (s)');
+
+figure('color', 'w');
+
+yyaxis left
+plot(t, y3)
+xlim([0 16]); ylim([-100 50])
+xlabel('Time (s)')
+ylabel('I_F - I_n_o_n_-_F (a.u.)')
+set(findobj(get(gca, 'Children'), 'LineWidth',0.5), 'LineWidth', 1)
+set(gca, 'linewidth', 1, 'FontSize', 16)
+
+yyaxis right
+plot(t, potentialq1)
+ylim([-0.6 0]); ylabel('Potential (V vs. Ag/AgCl)')
+
+%% for SI, the subtract process presented in pictures
+load('E:\MoS2\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3-C1_mat.mat')
+exp = cell(81, 1);
+for ii = 1:81
+    exp{ii, 1} = D3_C1.sampleArea{ii, 1}; % D3.sampleArea and C1.sampleArea
+end
+
+% figure('color', 'w');
+
+savepath = 'E:\MoS2\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3_C1\';
+
+for ii = 1:81
+    % ii = 40;
+    tif_ii = exp{ii, 1};
+    
+    if ii > 40
+        Voltage = -0.4 + ((ii-41)/10)*0.1;
+    else
+        Voltage = -0.4 - ((ii-41)/10)*0.1;
+    end
+    
+    localSums = imboxfilt(tif_ii, 13);
+    localSums(localSums > 0) = 0;
+    localSums(localSums < -1000) = -1000;
+    
+    imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
+    title([num2str(Voltage), ' V'], 'FontSize', 14, 'FontWeight', 'bold');
+    c = fire;
+    c = flipud(c);
+    map = colormap(c);
+    % impixelinfo
+    
+    set(gca, 'CLim', [-1000 0]);
+    h=colorbar;
+    set(get(h,'title'),'string','Intensity (a.u.)', 'FontSize', 12);
+    
+    pause(0.05);
+    saveas(gcf,[savepath, 'D3_C1_' num2str(ii, '%04d'), '.tif']);
+end
+
+%% Crop the .tif pictures
+% Icropped = imcrop(I,rect) % rect = [197.5100   60.5100  655.9800  655.9800]
+
+% imagesFolder = 'E:\MoS2\20181116_MoS2_CH18-Au\TIFF_CV\Cut_C1_fire';
+% imagesFolder = 'E:\MoS2\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3_fire';
+imagesFolder = 'E:\MoS2\20181116_MoS2_CH18-Au\TIFF_CV\Cut_D3_C1';
+
+filePattern = [imagesFolder, '\*.tif'];
+tifFiles = dir(filePattern);
+
+% baseFileName = tifFiles(1).name;
+% fullFileName = fullfile(imagesFolder, baseFileName);
+% OriginalImage = imread(fullFileName);
+
+% % Cropping Images and get the 'rect'
+% [~, rect] = imcrop(OriginalImage);
+rect = [197.5100   60.5100  655.9800  655.9800]; 
+savepath = 'E:\MoS2\20181116_MoS2_CH18-Au\TIFF_CV\Cut_figureSI\';
+
+for ii = 1:length(tifFiles)
+    OriginalImage = imread(fullfile(imagesFolder, tifFiles(ii).name));
+    croppedIMG = imcrop(OriginalImage, rect);
+    filename = [savepath, 'D3_C1_' num2str(ii, '%04d'), '.tif'];
+    imwrite(croppedIMG, filename);
+end
+%%
+
+ii = 12;
+tif_ii = exp{ii, 1};
+% tif_ii = exp{ii, 1} - exp{9, 1}; % It is an optional.
+
+Voltage = -0.3;
+
+% redCon_ii = (-tif_ii)*10/600;
+redCon_ii = (-tif_ii)*10/(-(filterCurve(600)-filterCurve(400)));
+localSums = imboxfilt(redCon_ii, 13);
+localSums(localSums > 10) = 10;
+localSums(localSums < 0) = 0;
+imshow(localSums, 'DisplayRange',[], 'InitialMagnification', 'fit');
+title([num2str(Voltage), ' V'], 'FontSize', 14, 'FontWeight', 'bold');
+colormap fire % parula fire
+colorbar
+set(gca, 'CLim', [0 10]);
+h = colorbar;
+set(h, 'FontSize', 14, 'FontWeight', 'bold');
+set(get(h,'title'),'string','[Ru(NH_3)_6]Cl_3^2^+ (mM)', 'FontSize', 12);
+    
+
+

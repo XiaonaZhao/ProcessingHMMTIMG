@@ -1,10 +1,10 @@
 %% 
-exp = cell(25, 8);
+exp = cell(11, 8);
 fields = {'expName', 'tifPath', 'sROI', 'begin', 'pH', 'sampleRate', 'saveRoute', 'data'}; % the col number of exp
 expTab = cell2struct(exp, fields, 2);
 
 %%
-prefix = ('E:\nona\Graphene_20201010_100x\_Timer\');
+prefix = ('H:\EDL\MoS2_20201021\_Timer\');
 d = sortObj(dir([prefix, '*.mat']));
 Fs = 100;
 for ii = 1:size(expTab, 1)
@@ -85,3 +85,6 @@ h = colorbar;
 % set(get(h,'title'),'string','Phase (radian)');
 set(get(h,'title'),'string','Amplitude (a.u.)');
 set(gca, 'CLim', [0 20]);
+%%
+
+
